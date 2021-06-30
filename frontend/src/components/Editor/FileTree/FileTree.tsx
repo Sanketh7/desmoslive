@@ -1,6 +1,6 @@
 import { List } from "semantic-ui-react";
 import FileTreeFolder from "./FileTreeFolder";
-import { FileTreeData } from "../../interfaces/fileTree";
+import { FileTreeData } from "../../../interfaces/fileTree";
 import FileTreeItem from "./FileTreeItem";
 
 const FileTree = (): JSX.Element => {
@@ -16,6 +16,7 @@ const FileTree = (): JSX.Element => {
       },
     ],
   };
+
   return (
     <div style={{ width: "100%", height: "100%", padding: "1rem" }}>
       <List size="huge" style={{ width: "100%", height: "100%" }}>
