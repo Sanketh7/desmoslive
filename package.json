@@ -1,0 +1,6 @@
+{
+    "private": true,
+    "name": "desmoslive",
+    "workspaces": ["packages/web"],
+    "scripts": {}
+}
