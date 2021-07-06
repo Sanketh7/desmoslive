@@ -1,6 +1,9 @@
 {
     "private": true,
     "name": "desmoslive",
-    "workspaces": ["packages/web"],
+    "workspaces": [
+        "packages/web",
+        "packages/api"
+    ],
     "scripts": {}
 }
