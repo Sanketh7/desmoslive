@@ -14,7 +14,8 @@ const Login: React.FC = () => {
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
       try {
-        const res = await axios.post("http://localhost:7000", {
+        const res = await axios.post("/api/auth/google", {
+          // TODO: store url
           token: data.tokenId,
         });
       } catch (err) {
@@ -22,14 +23,21 @@ const Login: React.FC = () => {
       }
     }
   };
+  const handleLogout = async () => {
+    const res = await axios.delete("/api/auth/logout");
+    console.log(res);
+  };
   return (
-    <GoogleLogin
-      clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}
-      buttonText="Log in with Google"
-      onSuccess={handleLogin}
-      onFailure={handleLogin}
-      cookiePolicy="single-host-origin"
-    />
+    <div>
+      <GoogleLogin
+        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}
+        buttonText="Log in with Google"
+        onSuccess={handleLogin}
+        onFailure={handleLogin}
+        cookiePolicy="single_host_origin"
+      />
+      <button onClick={() => handleLogout()}>Logout</button>
+    </div>
   );
 };
 

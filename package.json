@@ -5,5 +5,9 @@
         "packages/web",
         "packages/api"
     ],
-    "scripts": {}
+    "scripts": {
+        "api": "cd packages/api && yarn dev",
+        "web": "cd packages/web && yarn start",
+        "dev": "concurrently --kill-others-on-fail \"yarn api\" \"yarn web\""
+    }
 }
