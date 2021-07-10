@@ -1,18 +1,15 @@
-import * as jwt from "jsonwebtoken";
 import express from "express";
+import { LoginTicket, OAuth2Client, TokenPayload } from "google-auth-library";
 import { User } from "./models/user.model";
-import { createNodeRedisClient } from "handy-redis"; // wrapper for node_redis with async/await support
-import * as dotenv from "dotenv";
 
-dotenv.config();
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
-const JWT_EXPIRES_MS = 1000 * 60 * 60; // expires in 1 hour
+const oauthClient = new OAuth2Client(CLIENT_ID);
 
 // add additional fields to Express.Request to use in middleware
 interface RequestAppData {
     user: User;
-    jwtToken: string;
+    authToken: string;
 }
 declare module "express-serve-static-core" {
     interface Request {
@@ -20,73 +17,34 @@ declare module "express-serve-static-core" {
     }
 }
 
-// create Redis client that stores a whitelist of JWT tokens
-const redisClient = createNodeRedisClient();
-
-// creates JWT token and signs it
-// JWT token expiry time is set and added to Redis database
-export const createJWT = async (
-    name: string,
-    email: string
-): Promise<string> => {
-    // TODO: make jwt sign async
-    const jwtToken = jwt.sign({ name: name, email: email }, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES_MS,
-    });
-    await redisClient.set(jwtToken, "active");
-    await redisClient.expire(jwtToken, JWT_EXPIRES_MS / 1000);
-    return jwtToken;
-};
-
-// ExpressJS middleware to verify JWT token in HTTP authorization header
-// 401 status if no authorization header
-// 403 status if invalid token in authorization header / failed to authenticate
-// JWT token contents (type User) added to Request.appData.user
-export const verifyJWTMiddleware = async (
+// ExpressJS middleware to verify a Google auth token
+// 401 status if no token provided in HTTP Authorization Header
+// 403 status if failed to authenticate token
+export const verifyGoogleAuthToken = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
 ): Promise<void> => {
     if (!req.headers.authorization) {
-        res.json({ error: "Needs authentication." });
-        res.status(401);
+        res.status(401).json({ error: "Needs authentication." });
         return;
     }
-    const redisRes = await redisClient.get(req.headers.authorization);
-    if (redisRes !== "active") {
-        res.json({
-            error: "Failed to authenticate. Expired or invalid token.",
+    try {
+        const ticket: LoginTicket = await oauthClient.verifyIdToken({
+            idToken: req.headers.authorization,
+            audience: CLIENT_ID,
         });
+        const { name, email } = ticket.getPayload() as TokenPayload;
+        if (!name || !email) throw new Error();
+        req.appData = {
+            authToken: req.headers.authorization,
+            user: { name: name, email: email },
+        };
+        next();
+    } catch (err) {
+        console.log(err);
+        res.json({ error: "Failed to authenticate." });
         res.status(403);
         return;
     }
-    console.log(req.headers.authorization);
-    jwt.verify(
-        req.headers.authorization as string,
-        JWT_SECRET,
-        (err, decoded) => {
-            if (err) {
-                console.log(err);
-                res.json({ error: "Failed to authenticate. Invalid token." });
-                res.status(403);
-                return;
-            }
-            const user = decoded as User;
-            if (!user.name || !user.email) {
-                console.log(err);
-                res.json({ error: "Failed to authenticate. Invalid token." });
-                res.status(403);
-                return;
-            }
-            req.appData.user = user;
-            req.appData.jwtToken = req.headers.authorization as string;
-        }
-    );
-    next();
-};
-
-// removes JWT token from Redis database
-// this invalidates the token from being used again
-export const invalidateJWT = async (jwtToken: string): Promise<void> => {
-    await redisClient.del(jwtToken);
 };

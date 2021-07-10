@@ -15,9 +15,15 @@ const Login: React.FC = () => {
     if (isOnlineResponse(data)) {
       console.log(data.tokenId);
       try {
-        const res = await axios.post("/api/auth/google", {
-          authToken: data.tokenId,
-        });
+        const res = await axios.post(
+          "/api/auth/google",
+          {},
+          {
+            headers: {
+              Authorization: data.tokenId as string,
+            },
+          }
+        );
         console.log(res);
       } catch (err) {
         console.log(err);
