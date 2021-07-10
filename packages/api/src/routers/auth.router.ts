@@ -1,5 +1,7 @@
 import express from "express";
 import { LoginTicket, OAuth2Client, TokenPayload } from "google-auth-library";
+import { createUser } from "../controllers/user.controller";
+import { createJWT, invalidateJWT, verifyJWTMiddleware } from "../tokenAuth";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 
@@ -8,9 +10,9 @@ const oauthClient = new OAuth2Client(CLIENT_ID);
 const router = express.Router();
 
 router.post("/google", async (req, res) => {
-    const { token }: { token: string } = req.body;
+    const { authToken }: { authToken: string } = req.body;
     const ticket: LoginTicket = await oauthClient.verifyIdToken({
-        idToken: token,
+        idToken: authToken,
         audience: CLIENT_ID,
     });
     const { name, email } = ticket.getPayload() as TokenPayload;
@@ -18,21 +20,20 @@ router.post("/google", async (req, res) => {
     console.log(`Name: ${name}\nEmail: ${email}`);
 
     if (!name || !email) {
-        res.json({ name: "", email: "" });
+        res.json({ error: "Failed to authenticate Google account." });
+        res.status(403);
     } else {
-        req.session.user = { name: name, email: email };
-        res.json({ name: name, email: email });
+        await createUser(name, email);
+        const jwtToken: string = await createJWT(name, email);
+        res.json(jwtToken);
+        res.status(200);
     }
-    res.status(200);
 });
 
-router.delete("/logout", async (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.log(err);
-        }
-        res.redirect("/");
-    });
+router.delete("/logout", verifyJWTMiddleware, async (req, res) => {
+    console.log(req.appData.user);
+    await invalidateJWT(req.appData.jwtToken);
+    res.redirect("/");
 });
 
 export { router as authRouter };

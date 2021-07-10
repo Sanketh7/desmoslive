@@ -13,11 +13,12 @@ const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
 const Login: React.FC = () => {
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
+      console.log(data.tokenId);
       try {
         const res = await axios.post("/api/auth/google", {
-          // TODO: store url
-          token: data.tokenId,
+          authToken: data.tokenId,
         });
+        console.log(res);
       } catch (err) {
         console.log(err);
       }

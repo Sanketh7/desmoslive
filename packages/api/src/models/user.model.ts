@@ -3,8 +3,8 @@ import { Schema, Model, model, Document, Types } from "mongoose";
 interface User {
     name: string;
     email: string;
-    myGraphs: Types.ObjectId[] | UserDocument[];
-    sharedGraphs: Types.ObjectId[] | UserDocument[];
+    myGraphs?: Types.ObjectId[] | UserDocument[];
+    sharedGraphs?: Types.ObjectId[] | UserDocument[];
 }
 
 // eslint-disable-next-line prettier/prettier
