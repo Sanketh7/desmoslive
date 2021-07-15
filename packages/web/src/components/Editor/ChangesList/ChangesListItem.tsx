@@ -5,8 +5,7 @@ import {
   SemanticCOLORS,
   SemanticICONS,
 } from "semantic-ui-react/dist/commonjs/generic";
-
-type ChangeType = "added" | "removed" | "no change";
+import { ChangeType } from "../../../interfaces/changesList";
 
 interface Props {
   text: string;

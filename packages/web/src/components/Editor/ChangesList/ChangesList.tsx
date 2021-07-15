@@ -1,7 +1,11 @@
 import { List } from "semantic-ui-react";
+import { useChangesContext } from "../../../contexts/ChangesContext";
+import { Change } from "../../../interfaces/changesList";
 import ChangesListItem from "./ChangesListItem";
 
 const ChangesList = (): JSX.Element => {
+  const { changesList } = useChangesContext();
+
   return (
     <div style={{ width: "100%", height: "100%", padding: "1rem" }}>
       <List
@@ -10,9 +14,17 @@ const ChangesList = (): JSX.Element => {
         relaxed
         style={{ width: "100%", height: "100%" }}
       >
-        <ChangesListItem text="y=x^2" changeType="no change" />
-        <ChangesListItem text="y=x^3" changeType="added" />
-        <ChangesListItem text="y=x^4" changeType="removed" />
+        {changesList
+          .filter((change: Change | undefined) => change)
+          .map((change: Change) => {
+            return (
+              <ChangesListItem
+                key={change.latex}
+                text={change.latex}
+                changeType={change.type}
+              />
+            );
+          })}
       </List>
     </div>
   );

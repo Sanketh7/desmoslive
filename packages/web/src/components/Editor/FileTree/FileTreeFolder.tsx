@@ -6,7 +6,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-const FileTreeFolder = ({ folderName, children }: Props): JSX.Element => {
+const FileTreeFolder: React.FC<Props> = ({ folderName, children }: Props) => {
   const [isCollapsed, setCollapsed] = useState(true);
 
   const handleClick = () => setCollapsed(!isCollapsed);
