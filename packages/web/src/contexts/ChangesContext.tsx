@@ -1,9 +1,9 @@
 import { useState, createContext, useContext } from "react";
-import { Change } from "../interfaces/changesList";
+import { ExpressionChange } from "../interfaces/changesList";
 
 interface ChangesContextProps {
-  changesList: Change[];
-  setChangesList: React.Dispatch<React.SetStateAction<Change[]>>;
+  changesList: ExpressionChange[];
+  setChangesList: React.Dispatch<React.SetStateAction<ExpressionChange[]>>;
 }
 
 const ChangesContext: React.Context<Partial<ChangesContextProps>> =
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ChangesProvider: React.FC<Props> = ({ children }: Props) => {
-  const [changesList, setChangesList] = useState<Change[]>([]);
+  const [changesList, setChangesList] = useState<ExpressionChange[]>([]);
 
   return (
     <ChangesContext.Provider value={{ changesList, setChangesList }}>

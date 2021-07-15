@@ -1,6 +1,6 @@
 import { List } from "semantic-ui-react";
 import { useChangesContext } from "../../../contexts/ChangesContext";
-import { Change } from "../../../interfaces/changesList";
+import { ExpressionChange } from "../../../interfaces/changesList";
 import ChangesListItem from "./ChangesListItem";
 
 const ChangesList = (): JSX.Element => {
@@ -15,15 +15,9 @@ const ChangesList = (): JSX.Element => {
         style={{ width: "100%", height: "100%" }}
       >
         {changesList
-          .filter((change: Change | undefined) => change)
-          .map((change: Change) => {
-            return (
-              <ChangesListItem
-                key={change.latex}
-                text={change.latex}
-                changeType={change.type}
-              />
-            );
+          .filter((change: ExpressionChange | undefined) => change)
+          .map((change: ExpressionChange) => {
+            return <ChangesListItem key={change.latex} change={change} />;
           })}
       </List>
     </div>

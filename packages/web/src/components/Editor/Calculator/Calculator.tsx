@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import Desmos from "desmos";
 import CalculatorHeader from "./CalculatorHeader";
 import { useChangesContext } from "../../../contexts/ChangesContext";
+import { ExpressionChange } from "../../../interfaces/changesList";
 
 const Calculator = (): JSX.Element => {
   const calcElem = useRef(document.createElement("div"));
@@ -14,8 +15,8 @@ const Calculator = (): JSX.Element => {
     calculator.current.setExpression({ id: "graph1", latex: "y=x^2" });
   }, []); // only runs on component mount
 
-  const getChangesList = () => {
-    const changes = calculator.current
+  const updateChangesList = () => {
+    const changes: ExpressionChange[] = calculator.current
       .getState()
       .expressions.list.filter((expr: any) => expr.latex) // ignores lines that don't contain any latex
       .map((expr: any) => {
@@ -35,7 +36,7 @@ const Calculator = (): JSX.Element => {
     >
       <CalculatorHeader />
       <div ref={calcElem} style={{ width: "100%", flex: "1 1 auto" }} />
-      <button onClick={getChangesList}>click</button>
+      <button onClick={updateChangesList}>click</button>
     </div>
   );
 };

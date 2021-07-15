@@ -5,19 +5,18 @@ import {
   SemanticCOLORS,
   SemanticICONS,
 } from "semantic-ui-react/dist/commonjs/generic";
-import { ChangeType } from "../../../interfaces/changesList";
+import { ExpressionChange } from "../../../interfaces/changesList";
 
 interface Props {
-  text: string;
-  changeType: ChangeType;
+  change: ExpressionChange;
 }
 
-const ChangesListItem = ({ text, changeType }: Props): JSX.Element => {
+const ChangesListItem = ({ change }: Props): JSX.Element => {
   let iconName: SemanticICONS, iconColor: SemanticCOLORS;
-  if (changeType === "added") {
+  if (change.changeType === "added") {
     iconName = "plus";
     iconColor = "green";
-  } else if (changeType === "removed") {
+  } else if (change.changeType === "removed") {
     iconName = "minus";
     iconColor = "red";
   } else {
@@ -30,7 +29,7 @@ const ChangesListItem = ({ text, changeType }: Props): JSX.Element => {
       <List.Icon name={iconName} color={iconColor} verticalAlign="middle" />
       <List.Content>
         <List.Header>
-          <TeX math={text} />
+          <TeX math={change.latex} />
         </List.Header>
       </List.Content>
     </List.Item>
