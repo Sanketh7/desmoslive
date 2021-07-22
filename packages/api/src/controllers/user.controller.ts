@@ -10,7 +10,7 @@ export const createUser = async (
   email: string
 ): Promise<UserDocument> => {
   const filter = { email: email };
-  const update = { name: name };
+  const update = { name: name }; // updates name just in case that changed
 
   const doc = await UserModel.findOneAndUpdate(filter, update, {
     new: true,
@@ -40,12 +40,13 @@ export const addToMyGraphs = async (
   userDoc: UserDocument,
   graphDoc: GraphDocument
 ): Promise<void> => {
-  await userDoc.updateOne({ $push: { myGraphs: graphDoc._id } }).exec();
+  if (graphDoc.owner != userDoc._id) return;
+  await userDoc.updateOne({ $push: { myGraphs: graphDoc._id } }).exec(); // TODO: prevent duplicates
 };
 
 export const addToSharedGraphs = async (
-  userDoc: UserDocument,
+  sharedUser: UserDocument,
   graphDoc: GraphDocument
 ): Promise<void> => {
-  await userDoc.updateOne({ $push: { sharedGraphs: graphDoc._id } }).exec();
+  await sharedUser.updateOne({ $push: { sharedGraphs: graphDoc._id } }).exec(); // TODO: prevent duplicates
 };

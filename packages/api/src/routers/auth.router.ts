@@ -8,8 +8,8 @@ router.post("/google", verifyGoogleAuthToken, async (req, res) => {
   const user = req.appData.user;
   console.log(`Name: ${user.name}\nEmail: ${user.email}`);
 
-  await createUser(user.name, user.email);
-  res.status(200).json(user);
+  const userDoc = await createUser(user.name, user.email);
+  res.status(200).json(userDoc.toJSON());
 });
 
 router.delete("/logout", verifyGoogleAuthToken, async (req, res) => {

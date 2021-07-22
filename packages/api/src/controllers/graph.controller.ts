@@ -7,7 +7,7 @@ export const createGraph = async (
 ): Promise<GraphDocument> => {
   const data: Graph = {
     name: name,
-    owner: owner,
+    owner: owner._id,
     sharedWith: [],
   };
   const graphDoc = await GraphModel.create(data);

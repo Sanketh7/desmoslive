@@ -1,9 +1,8 @@
 import { Document, model, Schema, Types } from "mongoose";
-import { UserDocument } from "./user.model";
 
 interface Graph {
   name: string;
-  owner: Types.ObjectId | UserDocument;
+  owner: Types.ObjectId;
   sharedWith: Types.ObjectId[];
 }
 
