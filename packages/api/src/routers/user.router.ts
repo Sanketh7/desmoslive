@@ -1,13 +1,25 @@
 import express from "express";
-import { findUserFromEmail } from "../controllers/user.controller";
+import { getMyGraphsID } from "../controllers/user.controller";
 import { verifyGoogleAuthToken } from "../tokenAuth";
-import { User } from "../models/user.model";
+import { Types } from "mongoose";
 
 const router = express.Router();
 
-router.get("/user", verifyGoogleAuthToken, async (req, res) => {
-  const userDoc = await findUserFromEmail(req.appData.user.email);
-  userDoc == null ? res.status(404) : res.status(200).json(userDoc as User);
+router.get("/me", verifyGoogleAuthToken, async (req, res) => {
+  req.appData.userDoc === null
+    ? res.status(404)
+    : res.status(200).json(req.appData.user);
+});
+
+router.get("/user/mygraphs", verifyGoogleAuthToken, async (req, res) => {
+  if (req.appData.userDoc === null) {
+    res.status(404);
+    return;
+  }
+  const graphIDs = getMyGraphsID(req.appData.userDoc);
+  graphIDs === undefined
+    ? res.status(404)
+    : res.status(200).json(graphIDs as Types.ObjectId[]);
 });
 
 export { router as userRouter };

@@ -1,4 +1,6 @@
-import { UserDocument, UserModel } from "../models/user.model";
+import { Types } from "mongoose";
+import { GraphDocument } from "../models/graph.model";
+import { User, UserDocument, UserModel } from "../models/user.model";
 
 // creates a new user document
 // if a user with that email address already exists, no document is created
@@ -13,13 +15,37 @@ export const createUser = async (
   const doc = await UserModel.findOneAndUpdate(filter, update, {
     new: true,
     upsert: true,
-  });
+  }).exec();
 
   return doc;
 };
 
-export const findUserFromEmail = async (
+export const getUserByEmail = async (
   email: string
 ): Promise<UserDocument | null> => {
   return await UserModel.findOne({ email: email }).exec();
+};
+
+export const getUser = async (user: User): Promise<UserDocument | null> => {
+  return await UserModel.findOne(user).exec();
+};
+
+export const getMyGraphsID = (
+  userDoc: UserDocument
+): Types.ObjectId[] | undefined => {
+  return userDoc.myGraphs;
+};
+
+export const addToMyGraphs = async (
+  userDoc: UserDocument,
+  graphDoc: GraphDocument
+): Promise<void> => {
+  await userDoc.updateOne({ $push: { myGraphs: graphDoc._id } }).exec();
+};
+
+export const addToSharedGraphs = async (
+  userDoc: UserDocument,
+  graphDoc: GraphDocument
+): Promise<void> => {
+  await userDoc.updateOne({ $push: { sharedGraphs: graphDoc._id } }).exec();
 };
