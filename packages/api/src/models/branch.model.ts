@@ -1,4 +1,4 @@
-import { Document, Schema, Types, model } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { GraphDocument } from "./graph.model";
 import { UserDocument } from "./user.model";
 
@@ -9,7 +9,7 @@ interface Branch {
 }
 
 // eslint-disable-next-line prettier/prettier
-interface BranchDocument extends Document, Branch { }
+interface BranchDocument extends Branch, Types.Subdocument { }
 
 const BranchSchema = new Schema({
   owner: { type: Types.ObjectId, ref: "User", required: true },
@@ -21,6 +21,6 @@ const BranchSchema = new Schema({
   ],
 });
 
-const BranchModel = model<BranchDocument>("Branch", BranchSchema);
+// const BranchModel = model<BranchDocument>("Branch", BranchSchema);
 
-export { Branch, BranchDocument, BranchModel };
+export { Branch, BranchDocument, BranchSchema };

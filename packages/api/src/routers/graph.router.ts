@@ -1,6 +1,9 @@
 import express from "express";
-import { createBranch } from "../controllers/branch.controller";
-import { createGraph, getGraphByID } from "../controllers/graph.controller";
+import {
+  createBranch,
+  createGraph,
+  getGraphByID,
+} from "../controllers/graph.controller";
 import {
   addToMyGraphs,
   addToSharedGraphs,
@@ -27,9 +30,9 @@ router.post("/create", verifyGoogleAuthToken, async (req, res) => {
   res.status(200);
 });
 
-router.put("/share", verifyGoogleAuthToken, async (req, res) => {
+router.put("/:graphID/share", verifyGoogleAuthToken, async (req, res) => {
   const graphID: string | undefined = req.params.graphid;
-  const email: string | undefined = req.params.email;
+  const email: string | undefined = req.query.email as string | undefined;
   const ownerDoc: UserDocument | null = req.appData.userDoc;
   if (!ownerDoc) {
     res.status(401);
@@ -56,8 +59,44 @@ router.put("/share", verifyGoogleAuthToken, async (req, res) => {
     return;
   }
   await addToSharedGraphs(sharedUserDoc, graphDoc);
-  const branchDoc = await createBranch(sharedUserDoc, graphDoc);
-  res.status(200).json(branchDoc.toJSON());
+  await createBranch(sharedUserDoc, graphDoc);
+  res.status(200);
 });
+
+router.put(
+  "/:graphid/mybranch/expressions",
+  verifyGoogleAuthToken,
+  async (req, res) => {
+    const graphID: string | undefined = req.params.graphid;
+    const userDoc: UserDocument | null = req.appData.userDoc;
+
+    // get expressions list and validate that it's a string array
+    const isStringArray = (value: any): boolean =>
+      Array.isArray(value) && value.every((item) => typeof item === "string");
+    const expressions: string[] | undefined = isStringArray(
+      req.body.expressions
+    )
+      ? (req.body.expressions as string[])
+      : undefined;
+
+    if (!graphID) {
+      res.status(403);
+      return;
+    }
+    if (!expressions) {
+      res.status(403).json({ message: "No expressions provided." });
+      return;
+    }
+    const graphDoc = await getGraphByID(graphID);
+    if (!graphDoc) {
+      res.status(404).json({ message: "No graph found." });
+      return;
+    }
+    if (!userDoc || graphDoc.owner !== userDoc._id) {
+      res.status(401);
+      return;
+    }
+  }
+);
 
 export { router as graphRouter };

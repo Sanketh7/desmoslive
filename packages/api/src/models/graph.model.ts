@@ -1,9 +1,11 @@
 import { Document, model, Schema, Types } from "mongoose";
+import { BranchDocument } from "./branch.model";
 
 interface Graph {
   name: string;
   owner: Types.ObjectId;
   sharedWith: Types.ObjectId[];
+  branches: Types.DocumentArray<BranchDocument>;
 }
 
 // eslint-disable-next-line prettier/prettier
@@ -18,6 +20,7 @@ const GraphSchema = new Schema({
       ref: "User",
     },
   ],
+  branches: [Branch]
 });
 
 const GraphModel = model<GraphDocument>("Graph", GraphSchema);
