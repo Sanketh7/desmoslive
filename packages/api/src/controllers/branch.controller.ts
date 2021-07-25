@@ -1,21 +1,50 @@
-/*import { BranchDocument, BranchModel } from "../models/branch.model";
-import { GraphDocument } from "../models/graph.model";
-import { UserDocument } from "../models/user.model";
+import { getRepository } from "typeorm";
+import { Branch } from "../models/branch.model";
+import { Graph } from "../models/graph.model";
+import { User } from "../models/user.model";
+import { getGraphByID } from "./graph.controller";
 
-// creates branch for user
-// if user already has a branch, does nothing
+/**
+ * creates a new branch
+ * if a branch with the given graph and owner already exists, nothing happens
+ * @param graph
+ * @param owner owner of the branch
+ */
 export const createBranch = async (
-  owner: UserDocument,
-  graph: GraphDocument
-): Promise<BranchDocument> => {
-  const filter = { graph: graph._id, owner: owner._id };
-  const update = {};
-
-  const doc = await BranchModel.findOneAndUpdate(filter, update, {
-    new: true,
-    upsert: true,
-  }).exec();
-
-  return doc;
+  graph: Graph,
+  owner: User
+): Promise<void> => {
+  const branchRepo = getRepository(Branch);
+  const branch = new Branch();
+  branch.owner = owner;
+  branch.graph = graph;
+  branch.expressions = [];
+  await branchRepo.save(branch);
 };
-*/
+
+export const getUsersExpressions = async (
+  graphID: string,
+  email: string
+): Promise<string[]> => {
+  const branch = await getRepository(Branch).findOne({
+    relations: ["owner", "graph"],
+    where: { owner: { email: email }, graph: { id: graphID } },
+  });
+  return branch && branch.expressions ? branch.expressions : [];
+};
+
+export const updateUsersExpressions = async (
+  graphID: string,
+  email: string,
+  expressions: string[]
+): Promise<boolean> => {
+  const branchRepo = getRepository(Branch);
+  const branch = await branchRepo.findOne({
+    relations: ["owner", "graph"],
+    where: { owner: { email: email }, graph: { id: graphID } },
+  });
+  if (!branch) return false;
+  branch.expressions = expressions;
+  branchRepo.save(branch);
+  return true;
+};

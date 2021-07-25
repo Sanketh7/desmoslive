@@ -1,27 +1,57 @@
 import express from "express";
-import { getMyGraphsID } from "../controllers/user.controller";
-import { verifyGoogleAuthToken } from "../tokenAuth";
-import { Types } from "mongoose";
-import { UserDocument } from "../models/user.model";
+import { createBranch } from "../controllers/branch.controller";
+import { createGraph } from "../controllers/graph.controller";
+import {
+  getMyGraphsIDs,
+  getSharedGraphsIDs,
+} from "../controllers/user.controller";
+import { googleAuth } from "../tokenAuth";
+import { handleHTTPError, HTTPError } from "./util";
 
 const router = express.Router();
 
-router.get("/me", verifyGoogleAuthToken, async (req, res) => {
-  req.appData.userDoc === null
-    ? res.status(401)
-    : res.status(200).json(req.appData.userDoc.toJSON());
+router.get("/me", googleAuth, (req, res) => {
+  res.status(501);
+  // TODO
 });
 
-router.get("/user/mygraphs", verifyGoogleAuthToken, async (req, res) => {
-  const userDoc = req.appData.userDoc;
-  if (!userDoc) {
-    res.status(401);
-    return;
+/**
+ * returns a string[] of graph IDs for the user's graphs
+ */
+router.get("/me/myGraphs", googleAuth, async (req, res) => {
+  const user = req.appData.user;
+  const graphIDs = await getMyGraphsIDs(user.email);
+  res.status(200).json({ myGraphs: graphIDs });
+});
+
+/**
+ * returns a string[] for graph IDs for the user's shared graphs
+ */
+router.get("/me/sharedGraphs", googleAuth, async (req, res) => {
+  const user = req.appData.user;
+  const graphIDs = await getSharedGraphsIDs(user.email);
+  res.status(200).json({ sharedGraphs: graphIDs }).end();
+});
+
+/**
+ * creates a new graph with the specified name
+ * creates a new branch in that graph for the user
+ * 404 if the graph name is undefined
+ */
+router.post("/me/createGraph/:graphName", googleAuth, async (req, res) => {
+  try {
+    const graphName = req.params.graphName;
+    if (!graphName) throw new HTTPError(404);
+
+    // create graph and branch for owner
+    const graph = await createGraph(req.appData.user, graphName);
+    await createBranch(graph, req.appData.user);
+
+    res.status(200).json({ id: graph.id }).end();
+  } catch (err) {
+    console.log(err.stack);
+    handleHTTPError(err, res);
   }
-  const graphIDs = getMyGraphsID(userDoc as UserDocument);
-  graphIDs === undefined
-    ? res.status(404)
-    : res.status(200).json(graphIDs as Types.ObjectId[]);
 });
 
 export { router as userRouter };
