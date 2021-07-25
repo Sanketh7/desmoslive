@@ -21,13 +21,13 @@ const FileTree = (): JSX.Element => {
         <FileTreeFolder folderName="My Graphs">
           {myGraphs &&
             myGraphs.map((graph) => (
-              <FileTreeItem fileName={graph.name} key={graph.id} />
+              <FileTreeItem graphName={graph.name} key={graph.id} />
             ))}
         </FileTreeFolder>
         <FileTreeFolder folderName="Shared With Me">
           {sharedGraphs &&
             sharedGraphs.map((graph) => (
-              <FileTreeItem fileName={graph.name} key={graph.id} />
+              <FileTreeItem graphName={graph.name} key={graph.id} />
             ))}
         </FileTreeFolder>
       </List>

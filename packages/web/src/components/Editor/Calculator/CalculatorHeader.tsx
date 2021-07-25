@@ -1,13 +1,16 @@
 import { Header, Button, Icon, Message } from "semantic-ui-react";
+import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
 
 const CalculatorHeader = (): JSX.Element => {
-  const unsavedChanges = false;
+  const { activeGraph } = useActiveGraphContext();
+
+  const unsavedChanges = false; // TODO
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <Header
         style={{ display: "inline-block", margin: 0, marginRight: "1rem" }}
       >
-        hi there
+        {activeGraph}
       </Header>
       <Button icon labelPosition="left">
         <Icon name="pencil" />

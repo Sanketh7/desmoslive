@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
       try {
-        const res = await axios.post(
+        await axios.post(
           "/api/auth/google",
           {},
           {
@@ -32,10 +32,6 @@ const Login: React.FC = () => {
         console.log(err);
       }
     }
-  };
-  const handleLogout = async () => {
-    const res = await axios.delete("/api/auth/logout");
-    console.log(res);
   };
   return (
     <Grid

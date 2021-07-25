@@ -3,6 +3,7 @@ import FileTree from "./FileTree/FileTree";
 import ChangesList from "./ChangesList/ChangesList";
 import Calculator from "./Calculator/Calculator";
 import { ChangesProvider } from "../../contexts/ChangesContext";
+import { ActiveGraphProvider } from "../../contexts/ActiveGraphContext";
 
 const Editor: React.FC = () => {
   return (
@@ -11,17 +12,19 @@ const Editor: React.FC = () => {
         columns="equal"
         style={{ width: "100%", height: "100%", margin: 0 }}
       >
-        <Grid.Column>
-          <FileTree />
-        </Grid.Column>
-        <ChangesProvider>
-          <Grid.Column width={8}>
-            <Calculator />
-          </Grid.Column>
+        <ActiveGraphProvider>
           <Grid.Column>
-            <ChangesList />
+            <FileTree />
           </Grid.Column>
-        </ChangesProvider>
+          <ChangesProvider>
+            <Grid.Column width={8}>
+              <Calculator />
+            </Grid.Column>
+            <Grid.Column>
+              <ChangesList />
+            </Grid.Column>
+          </ChangesProvider>
+        </ActiveGraphProvider>
       </Grid>
     </div>
   );
