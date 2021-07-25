@@ -5,6 +5,7 @@ import {
 } from "react-google-login";
 import axios from "axios";
 import { Grid, Header } from "semantic-ui-react";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 type LoginResponse = GoogleLoginResponse | GoogleLoginResponseOffline;
 const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
@@ -12,9 +13,10 @@ const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
 };
 
 const Login: React.FC = () => {
+  const { setAuthToken } = useAuthContext();
+
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
-      console.log(data.tokenId);
       try {
         const res = await axios.post(
           "/api/auth/google",
@@ -25,7 +27,7 @@ const Login: React.FC = () => {
             },
           }
         );
-        console.log(res);
+        setAuthToken(data.tokenId);
       } catch (err) {
         console.log(err);
       }
