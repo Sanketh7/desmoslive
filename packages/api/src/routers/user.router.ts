@@ -2,8 +2,8 @@ import express from "express";
 import { createBranch } from "../controllers/branch.controller";
 import { createGraph } from "../controllers/graph.controller";
 import {
-  getMyGraphsIDs,
-  getSharedGraphsIDs,
+  getMyGraphsData,
+  getSharedGraphsData,
 } from "../controllers/user.controller";
 import { googleAuth } from "../tokenAuth";
 import { handleHTTPError, HTTPError } from "./util";
@@ -20,8 +20,8 @@ router.get("/me", googleAuth, (req, res) => {
  */
 router.get("/me/myGraphs", googleAuth, async (req, res) => {
   const user = req.appData.user;
-  const graphIDs = await getMyGraphsIDs(user.email);
-  res.status(200).json({ myGraphs: graphIDs });
+  const graphData = await getMyGraphsData(user.email);
+  res.status(200).json({ myGraphs: graphData });
 });
 
 /**
@@ -29,8 +29,8 @@ router.get("/me/myGraphs", googleAuth, async (req, res) => {
  */
 router.get("/me/sharedGraphs", googleAuth, async (req, res) => {
   const user = req.appData.user;
-  const graphIDs = await getSharedGraphsIDs(user.email);
-  res.status(200).json({ sharedGraphs: graphIDs }).end();
+  const graphData = await getSharedGraphsData(user.email);
+  res.status(200).json({ sharedGraphs: graphData }).end();
 });
 
 /**

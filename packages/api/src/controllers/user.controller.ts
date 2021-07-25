@@ -1,5 +1,6 @@
 import { getConnection, getRepository } from "typeorm";
 import { User } from "../models/user.model";
+import { userRouter } from "../routers/user.router";
 
 /**
  * finds User entity by email
@@ -30,6 +31,7 @@ export const createUser = async (
     .execute();
 };
 
+/*
 export const getMyGraphsIDs = async (email: string): Promise<string[]> => {
   // need to specifically load the relation
   const loadedUser = await getRepository(User).findOne(email, {
@@ -38,8 +40,26 @@ export const getMyGraphsIDs = async (email: string): Promise<string[]> => {
   return loadedUser && loadedUser.myGraphs
     ? loadedUser.myGraphs.map((graph) => graph.id)
     : [];
-};
+};*/
 
+export const getMyGraphsData = async (email: string): Promise<{
+  id: string;
+  name: string;
+}[]> => {
+  // load user with relation
+  const user = await getRepository(User).findOne(email, {
+    relations: ["myGraphs"],
+  });
+  return user && user.myGraphs
+    ? user.myGraphs.map((graph) => {
+      return {
+        id: graph.id,
+        name: graph.name
+      }
+    })
+    : [];
+};
+/*
 export const getSharedGraphsIDs = async (email: string): Promise<string[]> => {
   // need to specifically load the relation
   const loadedUser = await getRepository(User).findOne(email, {
@@ -48,4 +68,10 @@ export const getSharedGraphsIDs = async (email: string): Promise<string[]> => {
   return loadedUser && loadedUser.sharedGraphs
     ? loadedUser.sharedGraphs.map((graph) => graph.id)
     : [];
-};
+};*/
+
+export const getSharedGraphsData = async (email: string): Promise<{ id: string, name: string }[]> => {
+  // load user with relation
+  const user = await getRepository(User).findOne(email, { relations: ["sharedGraphs"] });
+  return user && user.sharedGraphs ? user.sharedGraphs.map(graph => { return { id: graph.id, name: graph.name } }) : [];
+}
