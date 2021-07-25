@@ -1,28 +1,32 @@
-import { Document, model, Schema, Types } from "mongoose";
-import { BranchDocument } from "./branch.model";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
+import { Branch } from "./branch.model";
+import { User } from "./user.model";
 
-interface Graph {
-  name: string;
-  owner: Types.ObjectId;
-  sharedWith: Types.ObjectId[];
-  branches: Types.DocumentArray<BranchDocument>;
+@Entity()
+@Unique("name_owner_index", ["name", "owner"])
+export class Graph {
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @ManyToOne(() => User, (user) => user.myGraphs)
+  @JoinColumn()
+  owner!: User;
+
+  @ManyToMany(() => User, (user) => user.sharedGraphs)
+  sharedWith!: User[];
+
+  @OneToMany(() => Branch, (branch) => branch.graph)
+  branches!: Branch[];
 }
-
-// eslint-disable-next-line prettier/prettier
-interface GraphDocument extends Document, Graph { }
-
-const GraphSchema = new Schema({
-  name: { type: String, required: true },
-  owner: { type: Types.ObjectId, ref: "User", required: true },
-  sharedWith: [
-    {
-      type: Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  branches: [Branch]
-});
-
-const GraphModel = model<GraphDocument>("Graph", GraphSchema);
-
-export { Graph, GraphDocument, GraphModel };

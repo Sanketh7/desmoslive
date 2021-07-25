@@ -1,102 +1,84 @@
 import express from "express";
+import { Http2ServerRequest } from "http2";
 import {
   createBranch,
-  createGraph,
-  getGraphByID,
-} from "../controllers/graph.controller";
+  getUsersExpressions,
+  updateUsersExpressions,
+} from "../controllers/branch.controller";
 import {
-  addToMyGraphs,
-  addToSharedGraphs,
-  getUserByEmail,
-} from "../controllers/user.controller";
-import { UserDocument } from "../models/user.model";
-import { verifyGoogleAuthToken } from "../tokenAuth";
+  getGraphByID,
+  shareGraph,
+  validateOwner,
+} from "../controllers/graph.controller";
+import { getUserByEmail } from "../controllers/user.controller";
+import { googleAuth } from "../tokenAuth";
+import { handleHTTPError, HTTPError, isStringArray } from "./util";
 
 const router = express.Router();
 
-router.post("/create", verifyGoogleAuthToken, async (req, res) => {
-  const graphName: string | undefined = req.body.graphName;
-  const userDoc: UserDocument | null = req.appData.userDoc;
-  if (!graphName) {
-    res.status(403).json({ message: "Field 'graphName' not found." });
-    return;
+/**
+ * shares graph (id = "graphID") with user (email = "email")
+ * 404 if parameters are undefined or the collaborator isn't found
+ * 403 if the user can't modify this graph
+ */
+router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
+  try {
+    const { graphID, email } = req.params;
+    if (!graphID || !email) throw new HTTPError(404);
+
+    const graph = await getGraphByID(graphID);
+    const collaborator = await getUserByEmail(email);
+    if (!graph || !collaborator) throw new HTTPError(404);
+
+    // make sure that the user is allowed to access this graph
+    // if (graph.owner.email !== req.appData.user.email) throw new HTTPError(403);
+    if (!validateOwner(graphID, req.appData.user.email))
+      throw new HTTPError(403);
+
+    await shareGraph(graph, collaborator);
+    await createBranch(graph, collaborator);
+
+    res.status(200).end();
+  } catch (err) {
+    console.log(err.stack);
+    handleHTTPError(err, res);
   }
-  if (!userDoc) {
-    res.status(401);
-    return;
-  }
-  const graphDoc = await createGraph(graphName, userDoc as UserDocument);
-  await addToMyGraphs(userDoc as UserDocument, graphDoc);
-  res.status(200);
 });
 
-router.put("/:graphID/share", verifyGoogleAuthToken, async (req, res) => {
-  const graphID: string | undefined = req.params.graphid;
-  const email: string | undefined = req.query.email as string | undefined;
-  const ownerDoc: UserDocument | null = req.appData.userDoc;
-  if (!ownerDoc) {
-    res.status(401);
-    return;
+router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
+  try {
+    const graphID = req.params.graphID;
+    if (!graphID) throw new HTTPError(404);
+
+    const expressions = await getUsersExpressions(
+      graphID,
+      req.appData.user.email
+    );
+    if (!expressions) throw new HTTPError(404);
+
+    res.status(200).json({ expressions: expressions }).end();
+  } catch (err) {
+    handleHTTPError(err, res);
   }
-  if (!graphID || !email) {
-    res.status(403).json({ message: "Invalid parameters." });
-    return;
-  }
-  const graphDoc = await getGraphByID(graphID);
-  if (!graphDoc) {
-    res.status(403).json({ message: "Graph not found." });
-    return;
-  }
-  const sharedUserDoc = await getUserByEmail(email);
-  if (!sharedUserDoc) {
-    res.status(403).json({ message: "User not found." });
-    return;
-  }
-  // make sure that the user can share this graph
-  // the user must be the graph owner
-  if (graphDoc.owner !== ownerDoc._id) {
-    res.status(401);
-    return;
-  }
-  await addToSharedGraphs(sharedUserDoc, graphDoc);
-  await createBranch(sharedUserDoc, graphDoc);
-  res.status(200);
 });
 
-router.put(
-  "/:graphid/mybranch/expressions",
-  verifyGoogleAuthToken,
-  async (req, res) => {
-    const graphID: string | undefined = req.params.graphid;
-    const userDoc: UserDocument | null = req.appData.userDoc;
+router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
+  try {
+    const graphID = req.params.graphID;
+    const expressions = req.body.expressions;
+    if (!graphID || !isStringArray(expressions)) throw new HTTPError(404);
 
-    // get expressions list and validate that it's a string array
-    const isStringArray = (value: any): boolean =>
-      Array.isArray(value) && value.every((item) => typeof item === "string");
-    const expressions: string[] | undefined = isStringArray(
-      req.body.expressions
-    )
-      ? (req.body.expressions as string[])
-      : undefined;
+    const ok = await updateUsersExpressions(
+      graphID,
+      req.appData.user.email,
+      expressions
+    );
+    if (!ok) throw new HTTPError(404);
 
-    if (!graphID) {
-      res.status(403);
-      return;
-    }
-    if (!expressions) {
-      res.status(403).json({ message: "No expressions provided." });
-      return;
-    }
-    const graphDoc = await getGraphByID(graphID);
-    if (!graphDoc) {
-      res.status(404).json({ message: "No graph found." });
-      return;
-    }
-    if (!userDoc || graphDoc.owner !== userDoc._id) {
-      res.status(401);
-      return;
-    }
+    res.status(200).end();
+  } catch (err) {
+    handleHTTPError(err, res);
   }
-);
+});
 
 export { router as graphRouter };

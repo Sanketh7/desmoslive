@@ -1,32 +1,25 @@
-import { Schema, Model, model, Document, Types } from "mongoose";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
+import { Graph } from "./graph.model";
 
-interface User {
-  name: string;
-  email: string;
-  myGraphs: Types.ObjectId[];
-  sharedGraphs: Types.ObjectId[];
+@Entity()
+export class User {
+  @PrimaryColumn()
+  email!: string;
+
+  @Column()
+  name!: string;
+
+  @OneToMany(() => Graph, (graph) => graph.owner)
+  myGraphs!: Graph[];
+
+  @ManyToMany(() => Graph, (graph) => graph.sharedWith)
+  @JoinTable() // owner of relation
+  sharedGraphs!: Graph[];
 }
-
-// eslint-disable-next-line prettier/prettier
-interface UserDocument extends Document, User { }
-
-const UserSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  myGraphs: [
-    {
-      type: Types.ObjectId,
-      ref: "Graph",
-    },
-  ],
-  sharedGraphs: [
-    {
-      type: Types.ObjectId,
-      ref: "Graph",
-    },
-  ],
-});
-
-const UserModel: Model<UserDocument> = model<UserDocument>("User", UserSchema);
-
-export { User, UserDocument, UserModel };

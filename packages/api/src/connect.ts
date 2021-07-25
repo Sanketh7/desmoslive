@@ -1,9 +1,14 @@
-import mongoose from "mongoose";
+import { Connection, createConnection } from "typeorm";
 
-export const connect = (): Promise<typeof mongoose> => {
-    return mongoose.connect(process.env.DB_URI as string, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-    });
+export const connect = async (): Promise<Connection> => {
+  return await createConnection({
+    type: "postgres",
+    host: "localhost",
+    port: 5432,
+    //username: "root",
+    //password: "admin",
+    database: "desmoslive",
+    entities: [__dirname + "/models/*.model.ts"],
+    synchronize: true,
+  }); // TODO
 };
