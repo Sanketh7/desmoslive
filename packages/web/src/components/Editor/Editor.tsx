@@ -1,4 +1,4 @@
-import { Grid } from "semantic-ui-react";
+import { Grid } from "@material-ui/core";
 import FileTree from "./FileTree/FileTree";
 import ChangesList from "./ChangesList/ChangesList";
 import Calculator from "./Calculator/Calculator";
@@ -9,20 +9,21 @@ const Editor: React.FC = () => {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <Grid
-        columns="equal"
+        container
+        spacing={3}
         style={{ width: "100%", height: "100%", margin: 0 }}
       >
         <ActiveGraphProvider>
-          <Grid.Column>
+          <Grid item xs>
             <FileTree />
-          </Grid.Column>
+          </Grid>
           <ChangesProvider>
-            <Grid.Column width={8}>
+            <Grid item xs={6}>
               <Calculator />
-            </Grid.Column>
-            <Grid.Column>
+            </Grid>
+            <Grid item xs>
               <ChangesList />
-            </Grid.Column>
+            </Grid>
           </ChangesProvider>
         </ActiveGraphProvider>
       </Grid>
