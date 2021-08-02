@@ -12,15 +12,22 @@ const FileTree = (): JSX.Element => {
 
   const {
     myGraphs,
+    mutate: mutateMyGraphs
     // isError: myGraphsIsError,
     // isLoading: myGraphsIsLoading,
   } = useMyGraphsSWR(authToken);
 
-  const { sharedGraphs } = useSharedGraphsSWR(authToken);
+  const { sharedGraphs, mutate: mutateSharedGraphs } = useSharedGraphsSWR(authToken);
+
+  // forces a refresh on all graph data
+  const mutateGraphData = () => {
+    mutateMyGraphs();
+    mutateSharedGraphs();
+  }
 
   return (
     <Paper style={{ width: "100%", height: "100%", padding: "1rem" }}>
-      <FileTreeHeader />
+      <FileTreeHeader mutateGraphData={mutateGraphData} />
       <TreeView
         defaultCollapseIcon={<ArrowDropDown />}
         defaultExpandIcon={<ArrowRight />}

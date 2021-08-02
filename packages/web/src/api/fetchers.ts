@@ -18,14 +18,16 @@ export const useMyGraphsSWR = (
   myGraphs: GraphData | undefined;
   isLoading: boolean;
   isError: boolean;
+  mutate: (data?: unknown, shouldRevalidate?: boolean | undefined) => Promise<unknown>
 } => {
-  const { data, error } = useSWR("/api/user/me/myGraphs", (url: string) =>
+  const { data, mutate, error } = useSWR("/api/user/me/myGraphs", (url: string) =>
     fetcher(url, authToken)
   );
   return {
     myGraphs: data && data.myGraphs ? (data.myGraphs as GraphData) : undefined,
     isLoading: !error && data,
     isError: error,
+    mutate: mutate
   };
 };
 
@@ -35,8 +37,9 @@ export const useSharedGraphsSWR = (
   sharedGraphs: GraphData | undefined;
   isLoading: boolean;
   isError: boolean;
+  mutate: (data?: unknown, shouldRevalidate?: boolean | undefined) => Promise<unknown>
 } => {
-  const { data, error } = useSWR("/api/user/me/sharedGraphs", (url: string) =>
+  const { data, mutate, error } = useSWR("/api/user/me/sharedGraphs", (url: string) =>
     fetcher(url, authToken)
   );
   return {
@@ -44,6 +47,7 @@ export const useSharedGraphsSWR = (
       data && data.sharedGraphs ? (data.sharedGraphs as GraphData) : undefined,
     isLoading: !error && data,
     isError: error,
+    mutate: mutate
   };
 };
 
