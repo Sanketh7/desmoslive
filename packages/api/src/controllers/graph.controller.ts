@@ -41,10 +41,9 @@ export const createGraph = async (
   graphName: string
 ): Promise<Graph> => {
   // check if owner already has a graph with the same name
-  if (owner && owner.myGraphs) {
-    const oldGraph = owner.myGraphs.find((graph) => graph.name == graphName);
-    if (oldGraph) return oldGraph;
-  }
+  const oldGraph = await getRepository(Graph).findOne({ name: graphName, owner: { email: owner.email } },
+    { relations: ["owner"] })
+  if (oldGraph) return oldGraph;
 
   const graphRepo = getRepository(Graph);
   const graph = new Graph();

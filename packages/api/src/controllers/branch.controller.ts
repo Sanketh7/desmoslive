@@ -14,6 +14,13 @@ export const createBranch = async (
   graph: Graph,
   owner: User
 ): Promise<void> => {
+  // check if user already has a branch
+  const oldBranch = await getRepository(Branch).findOne({
+    relations: ["owner", "graph"],
+    where: { owner: { email: owner.email }, graph: { id: graph.id } },
+  });
+  if (oldBranch) return;
+
   const branchRepo = getRepository(Branch);
   const branch = new Branch();
   branch.owner = owner;
