@@ -38,9 +38,9 @@ router.get("/me/sharedGraphs", googleAuth, async (req, res) => {
  * creates a new branch in that graph for the user
  * 404 if the graph name is undefined
  */
-router.post("/me/createGraph/:graphName", googleAuth, async (req, res) => {
+router.post("/me/createGraph/", googleAuth, async (req, res) => {
   try {
-    const graphName = req.params.graphName;
+    const graphName = req.body.graphName;
     if (!graphName) throw new HTTPError(404);
 
     // create graph and branch for owner

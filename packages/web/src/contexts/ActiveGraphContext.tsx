@@ -1,8 +1,13 @@
 import React, { useState, createContext, useContext } from "react";
 
+interface ActiveGraph {
+  name: string;
+  id: string;
+}
+
 interface ActiveGraphContextProps {
-  activeGraph: string;
-  setActiveGraph: React.Dispatch<React.SetStateAction<string>>;
+  activeGraph: ActiveGraph | null;
+  setActiveGraph: React.Dispatch<React.SetStateAction<ActiveGraph | null>>;
 }
 
 const ActiveGraphContext: React.Context<Partial<ActiveGraphContextProps>> =
@@ -13,7 +18,7 @@ interface Props {
 }
 
 const ActiveGraphProvider: React.FC<Props> = ({ children }: Props) => {
-  const [activeGraph, setActiveGraph] = useState<string>("");
+  const [activeGraph, setActiveGraph] = useState<ActiveGraph | null>(null);
 
   return (
     <ActiveGraphContext.Provider value={{ activeGraph, setActiveGraph }}>

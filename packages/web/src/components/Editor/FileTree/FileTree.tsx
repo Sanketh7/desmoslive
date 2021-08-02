@@ -4,6 +4,8 @@ import FileTreeFolder from "./FileTreeFolder";
 import FileTreeItem from "./FileTreeItem";
 import { useMyGraphsSWR, useSharedGraphsSWR } from "../../../api/fetchers";
 import { useAuthContext } from "../../../contexts/AuthContext";
+import { FileTreeHeader } from "./FileTreeHeader";
+import { Paper } from "@material-ui/core";
 
 const FileTree = (): JSX.Element => {
   const { authToken } = useAuthContext();
@@ -17,7 +19,8 @@ const FileTree = (): JSX.Element => {
   const { sharedGraphs } = useSharedGraphsSWR(authToken);
 
   return (
-    <div style={{ width: "100%", height: "100%", padding: "1rem" }}>
+    <Paper style={{ width: "100%", height: "100%", padding: "1rem" }}>
+      <FileTreeHeader />
       <TreeView
         defaultCollapseIcon={<ArrowDropDown />}
         defaultExpandIcon={<ArrowRight />}
@@ -43,14 +46,8 @@ const FileTree = (): JSX.Element => {
             ))}
         </FileTreeFolder>
       </TreeView>
-    </div>
+    </Paper>
   );
 };
 
 export default FileTree;
-
-/*
-
-      <List size="huge" style={{ width: "100%", height: "100%" }}>
-      </List>
-*/

@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import Desmos from "desmos";
+import * as Diff from "diff";
 import _ from "lodash";
+import { v4 as uuidv4 } from "uuid";
 import CalculatorHeader from "./CalculatorHeader";
 import { useChangesContext } from "../../../contexts/ChangesContext";
 import { ExpressionChange } from "../../../interfaces/changesList";
+import { useGraphExpressionsSWR } from "../../../api/fetchers";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
 
 const Calculator = (): JSX.Element => {
   const calcElem = useRef(document.createElement("div"));
@@ -12,13 +17,36 @@ const Calculator = (): JSX.Element => {
 
   const { setChangesList } = useChangesContext();
 
+  const { authToken } = useAuthContext();
+  const { activeGraph } = useActiveGraphContext();
+  const { expressions: oldExpressions } = useGraphExpressionsSWR(
+    authToken,
+    activeGraph?.id
+  );
+
   const updateChangesList = () => {
-    const changes: ExpressionChange[] = calculator.current
+    const newExpressions: string[] = calculator.current
       .getState()
-      .expressions.list.filter((expr: any) => expr.latex) // ignores lines that don't contain any latex
-      .map((expr: any): ExpressionChange => {
-        return { changeType: "added", latex: expr.latex };
+      .expressions.list.filter((expr: any) => expr.latex)
+      .map((expr: any) => expr.latex);
+    const diff = Diff.diffArrays(
+      oldExpressions ? oldExpressions : [],
+      newExpressions
+    );
+    const changes: ExpressionChange[] = [];
+    diff.forEach((part) => {
+      part.value.forEach((latex) => {
+        changes.push({
+          changeType: part.added
+            ? "added"
+            : part.removed
+              ? "removed"
+              : "no change",
+          latex: latex,
+        });
       });
+    });
+
     setChangesList(changes);
   };
 
@@ -28,9 +56,15 @@ const Calculator = (): JSX.Element => {
 
   useEffect(() => {
     calculator.current = Desmos.GraphingCalculator(calcElem.current);
-    calculator.current.setExpression({ id: "graph1", latex: "y=x^2" });
     calculator.current.observeEvent("change", throttledUpdateChangesList);
   }, []); // only runs on component mount
+
+  useEffect(() => {
+    calculator.current.setBlank();
+    oldExpressions?.forEach(latex => {
+      calculator.current.setExpression({ id: uuidv4(), latex: latex });
+    })
+  }, [oldExpressions]);
 
   return (
     <div

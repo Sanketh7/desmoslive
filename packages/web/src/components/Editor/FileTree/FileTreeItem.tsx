@@ -12,7 +12,7 @@ const FileTreeItem = ({ graphName, graphID }: Props): JSX.Element => {
     <TreeItem
       nodeId={graphID}
       label={graphName}
-      onClick={() => setActiveGraph(graphName)}
+      onClick={() => setActiveGraph({ name: graphName, id: graphID })}
     />
   );
 };

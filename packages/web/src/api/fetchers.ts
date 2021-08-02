@@ -23,7 +23,7 @@ export const useMyGraphsSWR = (
     fetcher(url, authToken)
   );
   return {
-    myGraphs: data ? (data.myGraphs as GraphData) : undefined,
+    myGraphs: data && data.myGraphs ? (data.myGraphs as GraphData) : undefined,
     isLoading: !error && data,
     isError: error,
   };
@@ -40,7 +40,28 @@ export const useSharedGraphsSWR = (
     fetcher(url, authToken)
   );
   return {
-    sharedGraphs: data ? (data.sharedGraphs as GraphData) : undefined,
+    sharedGraphs:
+      data && data.sharedGraphs ? (data.sharedGraphs as GraphData) : undefined,
+    isLoading: !error && data,
+    isError: error,
+  };
+};
+
+export const useGraphExpressionsSWR = (
+  authToken: string,
+  graphID: string | null | undefined
+): {
+  expressions: string[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+} => {
+  const { data, error } = useSWR(
+    graphID ? `/api/graph/${graphID}/branch/me/expressions` : null,
+    (url: string) => fetcher(url, authToken)
+  );
+  return {
+    expressions:
+      data && data.expressions ? (data.expressions as string[]) : undefined,
     isLoading: !error && data,
     isError: error,
   };
