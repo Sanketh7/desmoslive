@@ -1,38 +1,34 @@
-import { List } from "semantic-ui-react";
+import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
-import {
-  SemanticCOLORS,
-  SemanticICONS,
-} from "semantic-ui-react/dist/commonjs/generic";
 import { ExpressionChange } from "../../../interfaces/changesList";
+import {
+  AddTwoTone,
+  FiberManualRecordTwoTone,
+  RemoveTwoTone,
+} from "@material-ui/icons";
 
 interface Props {
   change: ExpressionChange;
 }
 
 const ChangesListItem = ({ change }: Props): JSX.Element => {
-  let iconName: SemanticICONS, iconColor: SemanticCOLORS;
+  let icon: JSX.Element;
   if (change.changeType === "added") {
-    iconName = "plus";
-    iconColor = "green";
+    icon = <AddTwoTone htmlColor="green" fontSize="large" />;
   } else if (change.changeType === "removed") {
-    iconName = "minus";
-    iconColor = "red";
+    icon = <RemoveTwoTone htmlColor="red" fontSize="large" />;
   } else {
     // changeType === "no change"
-    iconName = "circle outline";
-    iconColor = "yellow";
+    icon = <FiberManualRecordTwoTone htmlColor="yellow" fontSize="large" />;
   }
   return (
-    <List.Item>
-      <List.Icon name={iconName} color={iconColor} verticalAlign="middle" />
-      <List.Content>
-        <List.Header>
-          <TeX math={change.latex} />
-        </List.Header>
-      </List.Content>
-    </List.Item>
+    <ListItem divider>
+      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemText>
+        <TeX math={change.latex} style={{ fontSize: "1.5rem" }} />
+      </ListItemText>
+    </ListItem>
   );
 };
 

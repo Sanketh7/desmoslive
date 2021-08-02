@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { List } from "semantic-ui-react";
+import { TreeItem } from "@material-ui/lab";
 
 interface Props {
   folderName: string;
@@ -7,21 +6,10 @@ interface Props {
 }
 
 const FileTreeFolder: React.FC<Props> = ({ folderName, children }: Props) => {
-  const [isCollapsed, setCollapsed] = useState(true);
-
-  const handleClick = () => setCollapsed(!isCollapsed);
-
   return (
-    <List.Item>
-      <List.Icon
-        onClick={handleClick}
-        name={isCollapsed ? "chevron circle right" : "chevron circle down"}
-      />
-      <List.Content>
-        <List.Header onClick={handleClick}>{folderName}</List.Header>
-        {!isCollapsed && <List.List>{children}</List.List>}
-      </List.Content>
-    </List.Item>
+    <TreeItem nodeId={folderName} label={folderName}>
+      {children}
+    </TreeItem>
   );
 };
 

@@ -1,4 +1,6 @@
-import { Header, Button, Icon, Message } from "semantic-ui-react";
+import { IconButton, Paper, Typography } from "@material-ui/core";
+import { EditTwoTone, ShareTwoTone } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
 
 const CalculatorHeader = (): JSX.Element => {
@@ -6,31 +8,32 @@ const CalculatorHeader = (): JSX.Element => {
 
   const unsavedChanges = false; // TODO
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Header
-        style={{ display: "inline-block", margin: 0, marginRight: "1rem" }}
+    <div>
+      <span
+        style={{ float: "left", display: "inline-flex", alignItems: "center" }}
       >
-        {activeGraph}
-      </Header>
-      <Button icon labelPosition="left">
-        <Icon name="pencil" />
-        Rename
-      </Button>
-      <Button icon labelPosition="left">
-        <Icon name="share" />
-        Share
-      </Button>
-      <Message
-        warning={unsavedChanges}
-        success={!unsavedChanges}
-        style={{ display: "inline-block", margin: 0, marginLeft: "auto" }}
-      >
-        <Message.Header>
-          {unsavedChanges
-            ? "Warning: You have unsaved changes!"
-            : "All changes are saved."}
-        </Message.Header>
-      </Message>
+        <Paper
+          variant="outlined"
+          elevation={3}
+          style={{ display: "inline-block" }}
+        >
+          <Typography
+            variant="h5"
+            style={{ padding: "0.25em 0.5em 0.25em 0.5em" }}
+          >
+            {activeGraph}
+          </Typography>
+        </Paper>
+        <IconButton aria-label="edit">
+          <EditTwoTone />
+        </IconButton>
+        <IconButton aria-label="share">
+          <ShareTwoTone />
+        </IconButton>
+      </span>
+      <Alert severity="success" style={{ float: "right" }}>
+        No unsaved changes.
+      </Alert>
     </div>
   );
 };

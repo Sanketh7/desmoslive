@@ -1,15 +1,31 @@
+import "@fontsource/roboto";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import "semantic-ui-css/semantic.min.css";
 import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./contexts/AuthContext";
+import { createTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#388e3c",
+    },
+    secondary: {
+      main: "#cddc39",
+    },
+  },
+});
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

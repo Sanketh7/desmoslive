@@ -1,4 +1,5 @@
-import { List } from "semantic-ui-react";
+import { TreeView } from "@material-ui/lab";
+import { ArrowDropDown, ArrowRight } from "@material-ui/icons";
 import FileTreeFolder from "./FileTreeFolder";
 import FileTreeItem from "./FileTreeItem";
 import { useMyGraphsSWR, useSharedGraphsSWR } from "../../../api/fetchers";
@@ -17,22 +18,39 @@ const FileTree = (): JSX.Element => {
 
   return (
     <div style={{ width: "100%", height: "100%", padding: "1rem" }}>
-      <List size="huge" style={{ width: "100%", height: "100%" }}>
+      <TreeView
+        defaultCollapseIcon={<ArrowDropDown />}
+        defaultExpandIcon={<ArrowRight />}
+      >
         <FileTreeFolder folderName="My Graphs">
           {myGraphs &&
             myGraphs.map((graph) => (
-              <FileTreeItem graphName={graph.name} key={graph.id} />
+              <FileTreeItem
+                graphName={graph.name}
+                graphID={graph.id}
+                key={graph.id}
+              />
             ))}
         </FileTreeFolder>
         <FileTreeFolder folderName="Shared With Me">
           {sharedGraphs &&
             sharedGraphs.map((graph) => (
-              <FileTreeItem graphName={graph.name} key={graph.id} />
+              <FileTreeItem
+                graphName={graph.name}
+                graphID={graph.id}
+                key={graph.id}
+              />
             ))}
         </FileTreeFolder>
-      </List>
+      </TreeView>
     </div>
   );
 };
 
 export default FileTree;
+
+/*
+
+      <List size="huge" style={{ width: "100%", height: "100%" }}>
+      </List>
+*/

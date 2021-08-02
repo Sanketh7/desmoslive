@@ -1,19 +1,19 @@
-import { List } from "semantic-ui-react";
 import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
+import { TreeItem } from "@material-ui/lab";
 
 interface Props {
   graphName: string;
+  graphID: string;
 }
 
-const FileTreeItem = ({ graphName }: Props): JSX.Element => {
+const FileTreeItem = ({ graphName, graphID }: Props): JSX.Element => {
   const { setActiveGraph } = useActiveGraphContext();
   return (
-    <List.Item onClick={() => setActiveGraph(graphName)}>
-      <List.Icon name="file alternate" />
-      <List.Content>
-        <List.Header>{graphName}</List.Header>
-      </List.Content>
-    </List.Item>
+    <TreeItem
+      nodeId={graphID}
+      label={graphName}
+      onClick={() => setActiveGraph(graphName)}
+    />
   );
 };
 
