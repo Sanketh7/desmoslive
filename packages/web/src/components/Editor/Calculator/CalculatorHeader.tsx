@@ -1,14 +1,15 @@
 import { IconButton, Paper, Tooltip, Typography } from "@material-ui/core";
 import { EditTwoTone, ShareTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
-import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
-import { useChangesContext } from "../../../contexts/ChangesContext";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const CalculatorHeader = (): JSX.Element => {
-  const { activeGraph } = useActiveGraphContext();
-  const { changesList } = useChangesContext();
+  const activeGraph = useSelector((state: RootState) => state.activeGraph);
 
-  return activeGraph ? (
+  const changes = useSelector((state: RootState) => state.changes.value);
+
+  return activeGraph.id ? (
     <div>
       <span
         style={{ float: "left", display: "inline-flex", alignItems: "center" }}
@@ -36,10 +37,13 @@ const CalculatorHeader = (): JSX.Element => {
           </IconButton>
         </Tooltip>
       </span>
-      <Alert severity={changesList.length > 0 ? "warning" : "success"} style={{ float: "right" }}>
-        {changesList.length > 0 ? "Unsaved changes!" : "No unsaved changes."}
+      <Alert
+        severity={changes.length > 0 ? "warning" : "success"}
+        style={{ float: "right" }}
+      >
+        {changes.length > 0 ? "Unsaved changes!" : "No unsaved changes."}
       </Alert>
-    </div >
+    </div>
   ) : (
     <Alert severity="info">Select a graph on the left to edit.</Alert>
   );

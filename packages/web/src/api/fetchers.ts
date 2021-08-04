@@ -13,46 +13,54 @@ const fetcher = (url: string, authToken: string) =>
 type GraphData = { id: string; name: string }[];
 
 export const useMyGraphsSWR = (
-  authToken: string
+  authToken: string | null
 ): {
   myGraphs: GraphData | undefined;
   isLoading: boolean;
   isError: boolean;
-  mutate: (data?: unknown, shouldRevalidate?: boolean | undefined) => Promise<unknown>
+  mutate: (
+    data?: unknown,
+    shouldRevalidate?: boolean | undefined
+  ) => Promise<unknown>;
 } => {
-  const { data, mutate, error } = useSWR("/api/user/me/myGraphs", (url: string) =>
-    fetcher(url, authToken)
+  const { data, mutate, error } = useSWR(
+    authToken ? "/api/user/me/myGraphs" : null, // doesn't fetch if authToken is null
+    (url: string) => fetcher(url, authToken as string)
   );
   return {
     myGraphs: data && data.myGraphs ? (data.myGraphs as GraphData) : undefined,
     isLoading: !error && data,
     isError: error,
-    mutate: mutate
+    mutate: mutate,
   };
 };
 
 export const useSharedGraphsSWR = (
-  authToken: string
+  authToken: string | null
 ): {
   sharedGraphs: GraphData | undefined;
   isLoading: boolean;
   isError: boolean;
-  mutate: (data?: unknown, shouldRevalidate?: boolean | undefined) => Promise<unknown>
+  mutate: (
+    data?: unknown,
+    shouldRevalidate?: boolean | undefined
+  ) => Promise<unknown>;
 } => {
-  const { data, mutate, error } = useSWR("/api/user/me/sharedGraphs", (url: string) =>
-    fetcher(url, authToken)
+  const { data, mutate, error } = useSWR(
+    authToken ? "/api/user/me/sharedGraphs" : null, // doesn't fetch if authToken is null
+    (url: string) => fetcher(url, authToken as string)
   );
   return {
     sharedGraphs:
       data && data.sharedGraphs ? (data.sharedGraphs as GraphData) : undefined,
     isLoading: !error && data,
     isError: error,
-    mutate: mutate
+    mutate: mutate,
   };
 };
 
 export const useGraphExpressionsSWR = (
-  authToken: string,
+  authToken: string | null,
   graphID: string | null | undefined
 ): {
   expressions: string[] | undefined;
@@ -60,8 +68,8 @@ export const useGraphExpressionsSWR = (
   isError: boolean;
 } => {
   const { data, error } = useSWR(
-    graphID ? `/api/graph/${graphID}/branch/me/expressions` : null,
-    (url: string) => fetcher(url, authToken)
+    graphID && authToken ? `/api/graph/${graphID}/branch/me/expressions` : null, // doesn't fetch if graphID or authToken are falsey
+    (url: string) => fetcher(url, authToken as string)
   );
   return {
     expressions:

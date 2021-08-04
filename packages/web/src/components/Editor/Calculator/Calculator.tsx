@@ -5,23 +5,23 @@ import * as Diff from "diff";
 import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import CalculatorHeader from "./CalculatorHeader";
-import { useChangesContext } from "../../../contexts/ChangesContext";
 import { ExpressionChange } from "../../../interfaces/changesList";
 import { useGraphExpressionsSWR } from "../../../api/fetchers";
-import { useAuthContext } from "../../../contexts/AuthContext";
-import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+import { setChanges } from "../../../redux/slices/changesSlice";
 
 const Calculator = (): JSX.Element => {
   const calcElem = useRef(document.createElement("div"));
   const calculator = useRef(Desmos.GraphingCalculator());
 
-  const { setChangesList } = useChangesContext();
+  const dispatch = useDispatch();
 
-  const { authToken } = useAuthContext();
-  const { activeGraph } = useActiveGraphContext();
+  const authToken = useSelector((state: RootState) => state.auth.token);
+  const activeGraph = useSelector((state: RootState) => state.activeGraph);
   const { expressions: oldExpressions } = useGraphExpressionsSWR(
     authToken,
-    activeGraph?.id
+    activeGraph.id
   );
 
   const updateChangesList = () => {
@@ -36,18 +36,14 @@ const Calculator = (): JSX.Element => {
     const changes: ExpressionChange[] = [];
     diff.forEach((part) => {
       part.value.forEach((latex) => {
-        changes.push({
-          changeType: part.added
-            ? "added"
-            : part.removed
-              ? "removed"
-              : "no change",
-          latex: latex,
-        });
+        if (part.added) changes.push({ changeType: "added", latex: latex });
+        else if (part.removed)
+          changes.push({ changeType: "removed", latex: latex });
+        else changes.push({ changeType: "no change", latex: latex });
       });
     });
 
-    setChangesList(changes);
+    dispatch(setChanges(changes));
   };
 
   const throttledUpdateChangesList = _.throttle(updateChangesList, 1000, {
@@ -61,9 +57,9 @@ const Calculator = (): JSX.Element => {
 
   useEffect(() => {
     calculator.current.setBlank();
-    oldExpressions?.forEach(latex => {
+    oldExpressions?.forEach((latex) => {
       calculator.current.setExpression({ id: uuidv4(), latex: latex });
-    })
+    });
   }, [oldExpressions]);
 
   return (

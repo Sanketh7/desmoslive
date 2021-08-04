@@ -3,8 +3,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { AuthProvider } from "./contexts/AuthContext";
 import { createTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 const theme = createTheme({
   palette: {
@@ -19,12 +20,12 @@ const theme = createTheme({
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <App />
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );

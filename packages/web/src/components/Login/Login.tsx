@@ -4,8 +4,9 @@ import {
   GoogleLoginResponseOffline,
 } from "react-google-login";
 import axios from "axios";
-import { useAuthContext } from "../../contexts/AuthContext";
 import { Paper, Typography } from "@material-ui/core";
+import { useDispatch } from "react-redux";
+import { setAuthToken } from "../../redux/slices/authSlice";
 
 type LoginResponse = GoogleLoginResponse | GoogleLoginResponseOffline;
 const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
@@ -13,7 +14,7 @@ const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
 };
 
 const Login: React.FC = () => {
-  const { setAuthToken } = useAuthContext();
+  const dispatch = useDispatch();
 
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
@@ -27,7 +28,7 @@ const Login: React.FC = () => {
             },
           }
         );
-        setAuthToken(data.tokenId);
+        dispatch(setAuthToken(data.tokenId));
       } catch (err) {
         console.log(err);
       }
