@@ -1,5 +1,6 @@
-import { useActiveGraphContext } from "../../../contexts/ActiveGraphContext";
 import { TreeItem } from "@material-ui/lab";
+import { useDispatch } from "react-redux";
+import { setActiveGraph } from "../../../redux/slices/activeGraphSlice";
 
 interface Props {
   graphName: string;
@@ -7,12 +8,13 @@ interface Props {
 }
 
 const FileTreeItem = ({ graphName, graphID }: Props): JSX.Element => {
-  const { setActiveGraph } = useActiveGraphContext();
+  const dispatch = useDispatch();
   return (
     <TreeItem
       nodeId={graphID}
       label={graphName}
-      onClick={() => setActiveGraph({ name: graphName, id: graphID })}
+      //onClick={() => setActiveGraph({ name: graphName, id: graphID })}
+      onClick={() => dispatch(setActiveGraph({ name: graphName, id: graphID }))}
     />
   );
 };
