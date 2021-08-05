@@ -5,5 +5,6 @@ export interface Expression {
 }
 
 export interface ExpressionChange extends Expression {
+  id?: string; // used to reduce re-renders in changes list
   changeType: ChangeType;
 }

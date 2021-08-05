@@ -10,6 +10,7 @@ const Editor: React.FC = () => {
       style={{
         width: "100vw",
         height: "100vh",
+        maxHeight: "100vh",
         display: "flex",
         flexFlow: "column",
       }}
@@ -18,7 +19,7 @@ const Editor: React.FC = () => {
       <Grid
         container
         spacing={3}
-        style={{ width: "100%", flex: "auto", margin: 0 }}
+        style={{ width: "100%", maxHeight: "100%", flex: "auto", margin: 0 }}
       >
         <Grid item xs>
           <FileTree />
@@ -26,7 +27,7 @@ const Editor: React.FC = () => {
         <Grid item xs={6}>
           <Calculator />
         </Grid>
-        <Grid item xs>
+        <Grid item xs style={{ maxHeight: "100%" }}>
           <ChangesList />
         </Grid>
       </Grid>

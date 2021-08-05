@@ -39,10 +39,14 @@ const Calculator = (): JSX.Element => {
     );
     const changes: ExpressionChange[] = [];
     diff.forEach((part) => {
+      const usedIDs = new Set(); // these IDs are used to reduce re-renders of changes in changes list
       part.value.forEach((latex) => {
-        if (part.added) changes.push({ changeType: "added", latex: latex });
+        const id = usedIDs.has(latex) ? latex + uuidv4() : latex;
+        usedIDs.add(id);
+        if (part.added)
+          changes.push({ changeType: "added", latex: latex, id: id });
         else if (part.removed)
-          changes.push({ changeType: "removed", latex: latex });
+          changes.push({ changeType: "removed", latex: latex, id: id });
       });
     });
 
@@ -62,13 +66,11 @@ const Calculator = (): JSX.Element => {
 
   useEffect(() => {
     calculator.current = Desmos.GraphingCalculator(calcElem.current);
-    calculator.current.observeEvent("change", throttledUpdateChangesList);
   }, []); // only runs on component mount
 
   useEffect(() => {
+    calculator.current.observeEvent("change", throttledUpdateChangesList);
     calculator.current.setBlank();
-    console.log(activeGraph.id);
-    console.log(oldExpressions);
     oldExpressions?.forEach((latex) => {
       calculator.current.setExpression({ id: uuidv4(), latex: latex });
     });
