@@ -73,60 +73,71 @@ const CalculatorHeader = (): JSX.Element => {
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Share" aria-label="share">
-          <IconButton
-            aria-label="share"
-            onClick={() => setShareDialogOpen(true)}
-          >
-            <ShareTwoTone />
-          </IconButton>
-        </Tooltip>
-        <Dialog
-          open={shareDialogOpen}
-          onClose={() => setShareDialogOpen(false)}
-          aria-labelledby="share-dialog-title"
-        >
-          <DialogTitle id="share-dialog-title">Share Graph</DialogTitle>
-          <form onSubmit={handleShareDialogSubmit}>
-            <DialogContent>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="shareEmail"
-                label="Email"
-                variant="outlined"
-                error={!shareEmail || !EmailValidator.validate(shareEmail)}
-                value={shareEmail}
-                onChange={(event) => setShareEmail(event.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShareDialogOpen(false)} color="primary">
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!shareEmail || !EmailValidator.validate(shareEmail)}
-                onClick={() => setShareDialogOpen(false)}
-                color="primary"
+        {activeGraph.isOwner && (
+          <>
+            <Tooltip title="Share" aria-label="share">
+              <IconButton
+                aria-label="share"
+                onClick={() => setShareDialogOpen(true)}
               >
-                Share
-              </Button>
-            </DialogActions>
-          </form>
-        </Dialog>
-        <Snackbar
-          open={shareSnackbarOpen}
-          autoHideDuration={6000}
-          onClose={() => setShareSnackbarOpen(false)}
-        >
-          <Alert
-            onClose={() => setShareSnackbarOpen(false)}
-            severity={shareSnackbarSuccess ? "success" : "error"}
-          >
-            {shareSnackbarSuccess ? "Shared graph!" : "Failed to share graph!"}
-          </Alert>
-        </Snackbar>
+                <ShareTwoTone />
+              </IconButton>
+            </Tooltip>
+            <Dialog
+              open={shareDialogOpen}
+              onClose={() => setShareDialogOpen(false)}
+              aria-labelledby="share-dialog-title"
+            >
+              <DialogTitle id="share-dialog-title">Share Graph</DialogTitle>
+              <form onSubmit={handleShareDialogSubmit}>
+                <DialogContent>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="shareEmail"
+                    label="Email"
+                    variant="outlined"
+                    error={!shareEmail || !EmailValidator.validate(shareEmail)}
+                    value={shareEmail}
+                    onChange={(event) => setShareEmail(event.target.value)}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={() => setShareDialogOpen(false)}
+                    color="primary"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={
+                      !shareEmail || !EmailValidator.validate(shareEmail)
+                    }
+                    onClick={() => setShareDialogOpen(false)}
+                    color="primary"
+                  >
+                    Share
+                  </Button>
+                </DialogActions>
+              </form>
+            </Dialog>
+            <Snackbar
+              open={shareSnackbarOpen}
+              autoHideDuration={6000}
+              onClose={() => setShareSnackbarOpen(false)}
+            >
+              <Alert
+                onClose={() => setShareSnackbarOpen(false)}
+                severity={shareSnackbarSuccess ? "success" : "error"}
+              >
+                {shareSnackbarSuccess
+                  ? "Shared graph!"
+                  : "Failed to share graph!"}
+              </Alert>
+            </Snackbar>
+          </>
+        )}
       </span>
       <Alert
         severity={changes.length > 0 ? "warning" : "success"}

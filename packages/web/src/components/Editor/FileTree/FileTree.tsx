@@ -41,6 +41,7 @@ const FileTree = (): JSX.Element => {
                 graphName={graph.name}
                 graphID={graph.id}
                 key={graph.id}
+                isOwner={true}
               />
             ))}
         </FileTreeFolder>
@@ -51,6 +52,7 @@ const FileTree = (): JSX.Element => {
                 graphName={graph.name}
                 graphID={graph.id}
                 key={graph.id}
+                isOwner={false}
               />
             ))}
         </FileTreeFolder>

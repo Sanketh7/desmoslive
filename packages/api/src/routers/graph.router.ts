@@ -8,6 +8,7 @@ import {
 import {
   getGraphByID,
   shareGraph,
+  validateCollaborator,
   validateOwner,
 } from "../controllers/graph.controller";
 import { getUserByEmail } from "../controllers/user.controller";
@@ -31,6 +32,7 @@ router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
     if (!graph || !collaborator) throw new HTTPError(404);
 
     // make sure that the user is allowed to access this graph
+    // only allowed to share graph if owner
     const allowed = await validateOwner(graphID, req.appData.user.email);
     if (!allowed)
       throw new HTTPError(403);
@@ -50,8 +52,10 @@ router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     if (!graphID) throw new HTTPError(404);
 
     // make sure that the user is allowed to access this graph
-    const allowed = await validateOwner(graphID, req.appData.user.email);
-    if (!allowed)
+    // user needs to be owner or collaborator
+    const isOwner = await validateOwner(graphID, req.appData.user.email);
+    const isCollaborator = await validateCollaborator(graphID, req.appData.user.email);
+    if (!isOwner && !isCollaborator)
       throw new HTTPError(403);
 
     const expressions = await getUsersExpressions(
@@ -73,8 +77,10 @@ router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     if (!graphID || !isStringArray(expressions)) throw new HTTPError(404);
 
     // make sure that the user is allowed to access this graph
-    const allowed = await validateOwner(graphID, req.appData.user.email);
-    if (!allowed)
+    // user needs to be owner or collaborator
+    const isOwner = await validateOwner(graphID, req.appData.user.email);
+    const isCollaborator = await validateCollaborator(graphID, req.appData.user.email);
+    if (!isOwner && !isCollaborator)
       throw new HTTPError(403);
 
     const ok = await updateUsersExpressions(
