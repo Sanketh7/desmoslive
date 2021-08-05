@@ -13,12 +13,18 @@ import { SaveTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { ExpressionChange } from "../../../interfaces/changesList";
+import { updateExpressionsRequest } from "../../../api/requesters";
+import { ExpressionChange } from "../../../interfaces/expressions";
 import { RootState } from "../../../redux/store";
 import ChangesListItem from "./ChangesListItem";
 
 const ChangesList = (): JSX.Element => {
-  const changes = useSelector((state: RootState) => state.changes.value);
+  const activeGraph = useSelector((state: RootState) => state.activeGraph);
+  const authToken = useSelector((state: RootState) => state.auth.token);
+  const changes = useSelector((state: RootState) => state.expressions.changes);
+  const currentExpressions = useSelector(
+    (state: RootState) => state.expressions.current
+  );
 
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
@@ -27,7 +33,19 @@ const ChangesList = (): JSX.Element => {
   const handleSaveDialogSubmit: React.FormEventHandler<HTMLFormElement> =
     async (event) => {
       event.preventDefault();
-      // TODO: save
+      try {
+        if (!authToken) throw new Error("No authentication.");
+        if (!activeGraph.id) throw new Error("No active graph.");
+        const res = await updateExpressionsRequest(
+          authToken as string,
+          activeGraph.id as string,
+          currentExpressions.map((expr) => expr.latex)
+        );
+        console.log(res);
+        // TODO: snackbar
+      } catch (err) {
+        console.log(err);
+      }
     };
 
   return (

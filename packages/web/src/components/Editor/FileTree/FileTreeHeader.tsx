@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 
 interface Props {
-  mutateGraphData: () => void;
+  mutateGraphData: () => Promise<void>;
 }
 
 export const FileTreeHeader: React.FC<Props> = ({ mutateGraphData }: Props) => {
@@ -49,9 +49,11 @@ export const FileTreeHeader: React.FC<Props> = ({ mutateGraphData }: Props) => {
       setNewSnackbarOpen(true);
       setNewSnackbarSuccess(res.status === 200);
       // refresh graph data to immediately show new graph
-      mutateGraphData();
+      await mutateGraphData();
     } catch (err) {
       console.log(err);
+      setNewSnackbarOpen(true);
+      setNewSnackbarSuccess(false);
     }
   };
 

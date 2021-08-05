@@ -66,8 +66,12 @@ export const useGraphExpressionsSWR = (
   expressions: string[] | undefined;
   isLoading: boolean;
   isError: boolean;
+  mutate: (
+    data?: unknown,
+    shouldRevalidate?: boolean | undefined
+  ) => Promise<unknown>;
 } => {
-  const { data, error } = useSWR(
+  const { data, mutate, error } = useSWR(
     graphID && authToken ? `/api/graph/${graphID}/branch/me/expressions` : null, // doesn't fetch if graphID or authToken are falsey
     (url: string) => fetcher(url, authToken as string)
   );
@@ -76,5 +80,6 @@ export const useGraphExpressionsSWR = (
       data && data.expressions ? (data.expressions as string[]) : undefined,
     isLoading: !error && data,
     isError: error,
+    mutate: mutate,
   };
 };

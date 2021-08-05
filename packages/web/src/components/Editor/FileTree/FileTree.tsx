@@ -22,9 +22,9 @@ const FileTree = (): JSX.Element => {
     useSharedGraphsSWR(authToken);
 
   // forces a refresh on all graph data
-  const mutateGraphData = () => {
-    mutateMyGraphs();
-    mutateSharedGraphs();
+  const mutateGraphData = async () => {
+    await mutateMyGraphs();
+    await mutateSharedGraphs();
   };
 
   return (

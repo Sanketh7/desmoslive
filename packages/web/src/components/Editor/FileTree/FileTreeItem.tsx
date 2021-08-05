@@ -1,5 +1,5 @@
 import { TreeItem } from "@material-ui/lab";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "../../../redux/hooks";
 import { setActiveGraph } from "../../../redux/slices/activeGraphSlice";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 }
 
 const FileTreeItem = ({ graphName, graphID }: Props): JSX.Element => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   return (
     <TreeItem
       nodeId={graphID}

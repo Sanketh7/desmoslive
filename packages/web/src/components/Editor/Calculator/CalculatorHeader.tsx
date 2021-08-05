@@ -7,7 +7,7 @@ import { RootState } from "../../../redux/store";
 const CalculatorHeader = (): JSX.Element => {
   const activeGraph = useSelector((state: RootState) => state.activeGraph);
 
-  const changes = useSelector((state: RootState) => state.changes.value);
+  const changes = useSelector((state: RootState) => state.expressions.changes);
 
   return activeGraph.id ? (
     <div>

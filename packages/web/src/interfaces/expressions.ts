@@ -1,4 +1,4 @@
-export type ChangeType = "added" | "removed" | "no change";
+export type ChangeType = "added" | "removed";
 
 export interface Expression {
   latex: string;

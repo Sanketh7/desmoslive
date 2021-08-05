@@ -18,8 +18,8 @@ export const activeGraphSlice = createSlice({
       state,
       action: PayloadAction<{ name: string; id: string }>
     ) => {
-      state.name = action.payload.name;
       state.id = action.payload.id;
+      state.name = action.payload.name;
     },
   },
 });

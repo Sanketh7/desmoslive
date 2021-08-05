@@ -1,7 +1,7 @@
 import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
-import { ExpressionChange } from "../../../interfaces/changesList";
+import { ExpressionChange } from "../../../interfaces/expressions";
 import {
   AddTwoTone,
   FiberManualRecordTwoTone,
@@ -13,18 +13,15 @@ interface Props {
 }
 
 const ChangesListItem = ({ change }: Props): JSX.Element => {
-  let icon: JSX.Element;
-  if (change.changeType === "added") {
-    icon = <AddTwoTone htmlColor="green" fontSize="large" />;
-  } else if (change.changeType === "removed") {
-    icon = <RemoveTwoTone htmlColor="red" fontSize="large" />;
-  } else {
-    // changeType === "no change"
-    icon = <FiberManualRecordTwoTone htmlColor="yellow" fontSize="large" />;
-  }
   return (
     <ListItem divider>
-      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemIcon>
+        {change.changeType === "added" ? (
+          <AddTwoTone htmlColor="green" fontSize="large" />
+        ) : (
+          <RemoveTwoTone htmlColor="red" fontSize="large" />
+        )}
+      </ListItemIcon>
       <ListItemText>
         <TeX math={change.latex} style={{ fontSize: "1.5rem" }} />
       </ListItemText>
