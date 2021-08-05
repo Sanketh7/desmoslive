@@ -7,6 +7,7 @@ import {
   DialogTitle,
   IconButton,
   List,
+  Snackbar,
   Typography,
 } from "@material-ui/core";
 import { SaveTwoTone } from "@material-ui/icons";
@@ -30,9 +31,10 @@ const ChangesList = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  // snackbar notifies user if save was successful or not
+  const [saveSnackbarOpen, setSaveSnackbarOpen] = useState(false);
+  const [saveSnackbarSuccess, setSaveSnackbarSuccess] = useState(false);
 
-  const handleSaveDialogOpen = () => setSaveDialogOpen(true);
-  const handleSaveDialogClose = () => setSaveDialogOpen(false);
   const handleSaveDialogSubmit: React.FormEventHandler<HTMLFormElement> =
     async (event) => {
       event.preventDefault();
@@ -48,9 +50,13 @@ const ChangesList = (): JSX.Element => {
         dispatch(setExpressionsChanges([]));
         // force swr to update
         mutate(`/api/graph/${activeGraph.id}/branch/me/expressions`);
-        // TODO: snackbar
+
+        setSaveSnackbarSuccess(res.status === 200);
+        setSaveSnackbarOpen(true);
       } catch (err) {
         console.log(err);
+        setSaveSnackbarSuccess(false);
+        setSaveSnackbarOpen(true);
       }
     };
 
@@ -74,14 +80,14 @@ const ChangesList = (): JSX.Element => {
         </Typography>
         <IconButton
           disabled={changes.length === 0}
-          onClick={handleSaveDialogOpen}
+          onClick={() => setSaveDialogOpen(true)}
         >
           <SaveTwoTone />
         </IconButton>
 
         <Dialog
           open={saveDialogOpen}
-          onClose={handleSaveDialogClose}
+          onClose={() => setSaveDialogOpen(false)}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
@@ -94,12 +100,12 @@ const ChangesList = (): JSX.Element => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleSaveDialogClose} color="primary">
+              <Button onClick={() => setSaveDialogOpen(false)} color="primary">
                 Cancel
               </Button>
               <Button
                 type="submit"
-                onClick={handleSaveDialogClose}
+                onClick={() => setSaveDialogOpen(false)}
                 color="primary"
                 autoFocus
               >
@@ -108,6 +114,18 @@ const ChangesList = (): JSX.Element => {
             </DialogActions>
           </form>
         </Dialog>
+        <Snackbar
+          open={saveSnackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSaveSnackbarOpen(false)}
+        >
+          <Alert
+            onClose={() => setSaveSnackbarOpen(false)}
+            severity={saveSnackbarSuccess ? "success" : "error"}
+          >
+            {saveSnackbarSuccess ? "Saved graph!" : "Failed to save graph!"}
+          </Alert>
+        </Snackbar>
       </div>
       {changes.length !== 0 ? (
         <List

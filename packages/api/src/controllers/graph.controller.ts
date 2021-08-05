@@ -79,5 +79,5 @@ export const validateOwner = async (
 
 export const validateCollaborator = async (graphID: string, email: string) => {
   const graph = await getRepository(Graph).findOne(graphID, { relations: ["sharedWith"] });
-  return graph !== undefined && graph.sharedWith.map(user => user.email === email).reduce((prev, curr, ind) => prev || curr);
+  return graph !== undefined && graph.sharedWith.map(user => user.email === email).reduce((prev, curr, ind) => prev || curr, false);
 }
