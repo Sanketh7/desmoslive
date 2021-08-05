@@ -31,7 +31,6 @@ router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
     if (!graph || !collaborator) throw new HTTPError(404);
 
     // make sure that the user is allowed to access this graph
-    // if (graph.owner.email !== req.appData.user.email) throw new HTTPError(403);
     if (!validateOwner(graphID, req.appData.user.email))
       throw new HTTPError(403);
 
@@ -50,6 +49,9 @@ router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     const graphID = req.params.graphID;
     if (!graphID) throw new HTTPError(404);
 
+    if (!validateOwner(graphID, req.appData.user.email))
+      throw new HTTPError(403);
+
     const expressions = await getUsersExpressions(
       graphID,
       req.appData.user.email
@@ -67,6 +69,9 @@ router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     const graphID = req.params.graphID;
     const expressions = req.body.expressions;
     if (!graphID || !isStringArray(expressions)) throw new HTTPError(404);
+
+    if (!validateOwner(graphID, req.appData.user.email))
+      throw new HTTPError(403);
 
     const ok = await updateUsersExpressions(
       graphID,
