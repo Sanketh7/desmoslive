@@ -1,6 +1,7 @@
 import { getConnection, getRepository } from "typeorm";
 import { Graph } from "../models/graph.model";
 import { User } from "../models/user.model";
+import { HTTPError } from "../routers/util";
 
 /**
  * finds the Graph with the given id
@@ -23,6 +24,15 @@ export const shareGraph = async (
   graph: Graph,
   collaborator: User
 ): Promise<void> => {
+  // first check if the collaborator already exists
+  const loadedGraph = await getRepository(Graph).findOne(graph.id, { relations: ["sharedWith"] });
+  if (!loadedGraph) throw new HTTPError(404);
+  let collabExists = false;
+  loadedGraph.sharedWith.forEach(user => {
+    collabExists = collabExists || (user.email === collaborator.email)
+  })
+  if (collabExists) return;
+
   await getConnection()
     .createQueryBuilder()
     .relation(Graph, "sharedWith")

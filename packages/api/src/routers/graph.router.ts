@@ -31,7 +31,8 @@ router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
     if (!graph || !collaborator) throw new HTTPError(404);
 
     // make sure that the user is allowed to access this graph
-    if (!validateOwner(graphID, req.appData.user.email))
+    const allowed = await validateOwner(graphID, req.appData.user.email);
+    if (!allowed)
       throw new HTTPError(403);
 
     await shareGraph(graph, collaborator);
@@ -39,7 +40,6 @@ router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
 
     res.status(200).end();
   } catch (err) {
-    console.log(err.stack);
     handleHTTPError(err, res);
   }
 });
@@ -49,7 +49,9 @@ router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     const graphID = req.params.graphID;
     if (!graphID) throw new HTTPError(404);
 
-    if (!validateOwner(graphID, req.appData.user.email))
+    // make sure that the user is allowed to access this graph
+    const allowed = await validateOwner(graphID, req.appData.user.email);
+    if (!allowed)
       throw new HTTPError(403);
 
     const expressions = await getUsersExpressions(
@@ -70,7 +72,9 @@ router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     const expressions = req.body.expressions;
     if (!graphID || !isStringArray(expressions)) throw new HTTPError(404);
 
-    if (!validateOwner(graphID, req.appData.user.email))
+    // make sure that the user is allowed to access this graph
+    const allowed = await validateOwner(graphID, req.appData.user.email);
+    if (!allowed)
       throw new HTTPError(403);
 
     const ok = await updateUsersExpressions(

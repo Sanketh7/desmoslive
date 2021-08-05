@@ -22,3 +22,15 @@ export const updateExpressionsRequest = async (
     { headers: { Authorization: authToken } }
   );
 };
+
+export const shareGraphRequest = async (
+  authToken: string,
+  graphID: string,
+  shareEmail: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.put(
+    `/api/graph/${graphID}/share/${shareEmail}`,
+    {},
+    { headers: { Authorization: authToken } }
+  );
+};

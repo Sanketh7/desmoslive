@@ -1,13 +1,54 @@
-import { IconButton, Paper, Tooltip, Typography } from "@material-ui/core";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Snackbar,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import { EditTwoTone, ShareTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { useState } from "react";
+import * as EmailValidator from "email-validator";
+import { shareGraphRequest } from "../../../api/requesters";
+import { useAppSelector } from "../../../redux/hooks";
 
 const CalculatorHeader = (): JSX.Element => {
-  const activeGraph = useSelector((state: RootState) => state.activeGraph);
+  const authToken = useAppSelector((state) => state.auth.token);
+  const activeGraph = useAppSelector((state) => state.activeGraph);
+  const changes = useAppSelector((state) => state.expressions.changes);
 
-  const changes = useSelector((state: RootState) => state.expressions.changes);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState("");
+  // snackbar used to show success/failure of sharing graph
+  const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
+  const [shareSnackbarSuccess, setShareSnackbarSuccess] = useState(false);
+
+  // callback for handling the share dialog
+  const handleShareDialogSubmit: React.FormEventHandler<HTMLFormElement> =
+    async (event) => {
+      event.preventDefault();
+      try {
+        if (!authToken) throw new Error("Needs authentication.");
+        if (!activeGraph.id) throw new Error("No active graph.");
+        const res = await shareGraphRequest(
+          authToken,
+          activeGraph.id,
+          shareEmail
+        );
+        setShareSnackbarSuccess(res.status === 200);
+        setShareSnackbarOpen(true);
+      } catch (err) {
+        console.log(err);
+        setShareSnackbarSuccess(false);
+        setShareSnackbarOpen(true);
+      }
+    };
 
   return activeGraph.id ? (
     <div>
@@ -31,11 +72,61 @@ const CalculatorHeader = (): JSX.Element => {
             <EditTwoTone />
           </IconButton>
         </Tooltip>
+
         <Tooltip title="Share" aria-label="share">
-          <IconButton aria-label="share">
+          <IconButton
+            aria-label="share"
+            onClick={() => setShareDialogOpen(true)}
+          >
             <ShareTwoTone />
           </IconButton>
         </Tooltip>
+        <Dialog
+          open={shareDialogOpen}
+          onClose={() => setShareDialogOpen(false)}
+          aria-labelledby="share-dialog-title"
+        >
+          <DialogTitle id="share-dialog-title">Share Graph</DialogTitle>
+          <form onSubmit={handleShareDialogSubmit}>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="shareEmail"
+                label="Email"
+                variant="outlined"
+                error={!shareEmail || !EmailValidator.validate(shareEmail)}
+                value={shareEmail}
+                onChange={(event) => setShareEmail(event.target.value)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShareDialogOpen(false)} color="primary">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!shareEmail || !EmailValidator.validate(shareEmail)}
+                onClick={() => setShareDialogOpen(false)}
+                color="primary"
+              >
+                Share
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+        <Snackbar
+          open={shareSnackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setShareSnackbarOpen(false)}
+        >
+          <Alert
+            onClose={() => setShareSnackbarOpen(false)}
+            severity={shareSnackbarSuccess ? "success" : "error"}
+          >
+            {shareSnackbarSuccess ? "Shared graph!" : "Failed to share graph!"}
+          </Alert>
+        </Snackbar>
       </span>
       <Alert
         severity={changes.length > 0 ? "warning" : "success"}
