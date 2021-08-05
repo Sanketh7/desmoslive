@@ -24,8 +24,13 @@ export const activeGraphSlice = createSlice({
       state.name = action.payload.name;
       state.isOwner = action.payload.isOwner;
     },
+    resetActiveGraph: (state) => {
+      state.id = initialState.id;
+      state.name = initialState.name;
+      state.isOwner = initialState.isOwner;
+    },
   },
 });
 
-export const { setActiveGraph } = activeGraphSlice.actions;
+export const { setActiveGraph, resetActiveGraph } = activeGraphSlice.actions;
 export default activeGraphSlice.reducer;

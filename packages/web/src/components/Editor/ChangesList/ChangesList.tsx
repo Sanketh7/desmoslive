@@ -109,7 +109,7 @@ const ChangesList = (): JSX.Element => {
                 color="primary"
                 autoFocus
               >
-                Confirm
+                Save
               </Button>
             </DialogActions>
           </form>

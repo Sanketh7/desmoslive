@@ -66,6 +66,14 @@ export const createGraph = async (
   return graph;
 };
 
+export const deleteGraph = async (graphID: string): Promise<boolean> => {
+  //await getRepository(Graph).createQueryBuilder().delete().from(Graph).where("id = :id", { id: graphID }).execute();
+  const graph = await getRepository(Graph).findOne(graphID);
+  if (!graph) return false;
+  await getRepository(Graph).remove(graph);
+  return true;
+}
+
 export const validateOwner = async (
   graphID: string,
   email: string

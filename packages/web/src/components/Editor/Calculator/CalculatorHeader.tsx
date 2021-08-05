@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   IconButton,
   Paper,
@@ -11,14 +12,21 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import { EditTwoTone, ShareTwoTone } from "@material-ui/icons";
+import { DeleteTwoTone, EditTwoTone, ShareTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import * as EmailValidator from "email-validator";
-import { shareGraphRequest } from "../../../api/requesters";
-import { useAppSelector } from "../../../redux/hooks";
+import { deleteGraphRequest, shareGraphRequest } from "../../../api/requesters";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import {
+  resetActiveGraph,
+  setActiveGraph,
+} from "../../../redux/slices/activeGraphSlice";
+import { mutate } from "swr";
 
 const CalculatorHeader = (): JSX.Element => {
+  const dispatch = useAppDispatch();
+
   const authToken = useAppSelector((state) => state.auth.token);
   const activeGraph = useAppSelector((state) => state.activeGraph);
   const changes = useAppSelector((state) => state.expressions.changes);
@@ -28,6 +36,10 @@ const CalculatorHeader = (): JSX.Element => {
   // snackbar used to show success/failure of sharing graph
   const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
   const [shareSnackbarSuccess, setShareSnackbarSuccess] = useState(false);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteSnackbarOpen, setDeleteSnackbarOpen] = useState(false);
+  const [deleteSnackbarSuccess, setDeleteSnackbarSuccess] = useState(false);
 
   // callback for handling the share dialog
   const handleShareDialogSubmit: React.FormEventHandler<HTMLFormElement> =
@@ -47,6 +59,28 @@ const CalculatorHeader = (): JSX.Element => {
         console.log(err);
         setShareSnackbarSuccess(false);
         setShareSnackbarOpen(true);
+      }
+    };
+
+  const handleDeleteDialogSubmit: React.FormEventHandler<HTMLFormElement> =
+    async (event) => {
+      event.preventDefault();
+      try {
+        if (!authToken) throw new Error("Needs authentication.");
+        if (!activeGraph.id) throw new Error("No active graph.");
+        const res = await deleteGraphRequest(authToken, activeGraph.id);
+
+        setDeleteSnackbarSuccess(res.status === 200);
+        setDeleteSnackbarOpen(true);
+        // nullify active graph
+        dispatch(resetActiveGraph());
+
+        // update my graphs in the file tree
+        await mutate("/api/user/me/myGraphs");
+      } catch (err) {
+        console.log(err);
+        setDeleteSnackbarSuccess(false);
+        setDeleteSnackbarOpen(true);
       }
     };
 
@@ -134,6 +168,63 @@ const CalculatorHeader = (): JSX.Element => {
                 {shareSnackbarSuccess
                   ? "Shared graph!"
                   : "Failed to share graph!"}
+              </Alert>
+            </Snackbar>
+          </>
+        )}
+
+        {activeGraph.isOwner && (
+          <>
+            <Tooltip title="Delete" aria-label="delete">
+              <IconButton onClick={() => setDeleteDialogOpen(true)}>
+                <DeleteTwoTone />
+              </IconButton>
+            </Tooltip>
+            <Dialog
+              open={deleteDialogOpen}
+              onClose={() => setDeleteDialogOpen(false)}
+              aria-labelledby="delete-dialog-title"
+              aria-describedby="delete-dialog-description"
+            >
+              <DialogTitle id="delete-dialog-title">Delete Graph?</DialogTitle>
+              <form onSubmit={handleDeleteDialogSubmit}>
+                <DialogContent>
+                  <DialogContentText id="delete-dialog-description">
+                    Deleting the graph is a <strong>PERMANENT</strong> action.
+                    Collaborators will no longer be able to access the graph as
+                    well.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={() => setDeleteDialogOpen(false)}
+                    color="primary"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    onClick={() => setDeleteDialogOpen(false)}
+                    color="primary"
+                    autoFocus
+                  >
+                    Delete
+                  </Button>
+                </DialogActions>
+              </form>
+            </Dialog>
+            <Snackbar
+              open={deleteSnackbarOpen}
+              autoHideDuration={6000}
+              onClose={() => setDeleteSnackbarOpen(false)}
+            >
+              <Alert
+                onClose={() => setDeleteSnackbarOpen(false)}
+                severity={deleteSnackbarSuccess ? "success" : "error"}
+              >
+                {deleteSnackbarSuccess
+                  ? "Deleted graph!"
+                  : "Failed to delete graph!"}
               </Alert>
             </Snackbar>
           </>

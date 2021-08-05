@@ -20,13 +20,13 @@ export class Graph {
   @Column()
   name!: string;
 
-  @ManyToOne(() => User, (user) => user.myGraphs)
+  @ManyToOne(() => User, (user) => user.myGraphs, { cascade: true })
   @JoinColumn()
   owner!: User;
 
-  @ManyToMany(() => User, (user) => user.sharedGraphs)
+  @ManyToMany(() => User, (user) => user.sharedGraphs, { cascade: true })
   sharedWith!: User[];
 
-  @OneToMany(() => Branch, (branch) => branch.graph)
+  @OneToMany(() => Branch, (branch) => branch.graph, { cascade: true })
   branches!: Branch[];
 }

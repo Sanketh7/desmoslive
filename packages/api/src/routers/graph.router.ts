@@ -6,6 +6,7 @@ import {
   updateUsersExpressions,
 } from "../controllers/branch.controller";
 import {
+  deleteGraph,
   getGraphByID,
   shareGraph,
   validateCollaborator,
@@ -97,3 +98,23 @@ router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
 });
 
 export { router as graphRouter };
+
+router.delete("/:graphID/delete", googleAuth, async (req, res) => {
+  try {
+    const graphID = req.params.graphID;
+    if (!graphID) throw new HTTPError(404);
+
+    // make sure the user is allowed to access this graph
+    // user needs to be owner
+    const isOwner = await validateOwner(graphID, req.appData.user.email);
+    if (!isOwner)
+      throw new HTTPError(403);
+
+    const ok = await deleteGraph(graphID);
+    if (!ok) throw new HTTPError(404);
+
+    res.status(200).end();
+  } catch (err) {
+    handleHTTPError(err, res);
+  }
+})

@@ -14,7 +14,7 @@ export class Branch {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @ManyToOne(() => Graph, (graph) => graph.branches)
+  @ManyToOne(() => Graph, (graph) => graph.branches, { onDelete: "CASCADE" })
   graph!: Graph;
 
   @ManyToOne(() => User)

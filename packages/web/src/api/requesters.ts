@@ -34,3 +34,12 @@ export const shareGraphRequest = async (
     { headers: { Authorization: authToken } }
   );
 };
+
+export const deleteGraphRequest = async (
+  authToken: string,
+  graphID: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.delete(`/api/graph/${graphID}/delete`, {
+    headers: { Authorization: authToken },
+  });
+};
