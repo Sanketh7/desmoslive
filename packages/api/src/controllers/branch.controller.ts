@@ -1,3 +1,4 @@
+import { relative } from "path/posix";
 import { getRepository } from "typeorm";
 import { Branch } from "../models/branch.model";
 import { Graph } from "../models/graph.model";
@@ -29,29 +30,37 @@ export const createBranch = async (
   await branchRepo.save(branch);
 };
 
-export const getUsersExpressions = async (
-  graphID: string,
-  email: string
-): Promise<string[]> => {
+export const getUsersBranchID = async (graphID: string, email: string): Promise<string | undefined> => {
   const branch = await getRepository(Branch).findOne({
     relations: ["owner", "graph"],
     where: { owner: { email: email }, graph: { id: graphID } },
   });
-  return branch && branch.expressions ? branch.expressions : [];
-};
+  return branch && branch.id ? branch.id : undefined;
+}
 
-export const updateUsersExpressions = async (
-  graphID: string,
-  email: string,
+export const getBranchExpressions = async (branchID: string): Promise<string[] | undefined> => {
+  const branch = await getRepository(Branch).findOne(branchID);
+  return branch && branch.expressions ? branch.expressions : undefined;
+}
+
+export const updateBranchExpressions = async (
+  branchID: string,
   expressions: string[]
 ): Promise<boolean> => {
   const branchRepo = getRepository(Branch);
-  const branch = await branchRepo.findOne({
-    relations: ["owner", "graph"],
-    where: { owner: { email: email }, graph: { id: graphID } },
-  });
+  const branch = await branchRepo.findOne(branchID);
   if (!branch) return false;
   branch.expressions = expressions;
   branchRepo.save(branch);
   return true;
 };
+
+export const getGraphFromBranch = async (branchID: string): Promise<Graph | undefined> => {
+  const branch = await getRepository(Branch).findOne(branchID, { relations: ["graph"] });
+  return branch && branch.graph ? branch.graph : undefined;
+};
+
+export const validateBranchOwner = async (branchID: string, email: string): Promise<boolean> => {
+  const branch = await getRepository(Branch).findOne(branchID, { relations: ["owner"] });
+  return Boolean(branch && branch.owner.email === email);
+}

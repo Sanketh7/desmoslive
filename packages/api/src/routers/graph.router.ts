@@ -2,11 +2,12 @@ import express from "express";
 import { Http2ServerRequest } from "http2";
 import {
   createBranch,
-  getUsersExpressions,
-  updateUsersExpressions,
+  getBranchExpressions,
+  getUsersBranchID,
 } from "../controllers/branch.controller";
 import {
   deleteGraph,
+  getBranches,
   getGraphByID,
   renameGraph,
   shareGraph,
@@ -49,7 +50,7 @@ router.put("/:graphID/share", googleAuth, async (req, res) => {
   }
 });
 
-router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
+router.get("/:graphID/branch/me/id", googleAuth, async (req, res) => {
   try {
     const graphID = req.params.graphID;
     if (!graphID) throw new HTTPError(404);
@@ -61,43 +62,35 @@ router.get("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
     if (!isOwner && !isCollaborator)
       throw new HTTPError(403);
 
-    const expressions = await getUsersExpressions(
-      graphID,
-      req.appData.user.email
-    );
-    if (!expressions) throw new HTTPError(404);
+    const id = await getUsersBranchID(graphID, req.appData.user.email);
+    if (!id) throw new HTTPError(404);
 
-    res.status(200).json({ expressions: expressions }).end();
+    res.status(200).json({ id: id }).end();
   } catch (err) {
     handleHTTPError(err, res);
   }
-});
+})
 
-router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
+router.get("/:graphID/branches", googleAuth, async (req, res) => {
   try {
-    const graphID = req.params.graphID;
-    const expressions = req.body.expressions;
-    if (!graphID || !isStringArray(expressions)) throw new HTTPError(404);
+    const { graphID } = req.params;
+    if (!graphID) throw new HTTPError(404);
 
-    // make sure that the user is allowed to access this graph
     // user needs to be owner or collaborator
     const isOwner = await validateOwner(graphID, req.appData.user.email);
     const isCollaborator = await validateCollaborator(graphID, req.appData.user.email);
     if (!isOwner && !isCollaborator)
       throw new HTTPError(403);
 
-    const ok = await updateUsersExpressions(
-      graphID,
-      req.appData.user.email,
-      expressions
-    );
-    if (!ok) throw new HTTPError(404);
+    const branches = await getBranches(graphID);
+    if (!branches) throw new HTTPError(404);
 
-    res.status(200).end();
+    const branchData = branches.map(branch => ({ id: branch.id, owner: { email: branch.owner.email } }));
+    res.status(200).json({ branches: branchData }).end();
   } catch (err) {
     handleHTTPError(err, res);
   }
-});
+})
 
 router.delete("/:graphID/delete", googleAuth, async (req, res) => {
   try {

@@ -1,5 +1,15 @@
 import axios, { AxiosResponse } from "axios";
 
+export const loginRequest = async (
+  authToken: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.post(
+    `/api/auth/google`,
+    {},
+    { headers: { Authorization: authToken } }
+  );
+};
+
 export const createGraphRequest = async (
   authToken: string,
   graphName: string
@@ -11,13 +21,13 @@ export const createGraphRequest = async (
   );
 };
 
-export const updateExpressionsRequest = async (
+export const updateBranchExpressionsRequest = async (
   authToken: string,
-  graphID: string,
+  branchID: string,
   expressions: string[]
 ): Promise<AxiosResponse<unknown>> => {
   return await axios.put(
-    `/api/graph/${graphID}/branch/me/expressions`,
+    `/api/branch/${branchID}/expressions`,
     { expressions: expressions },
     { headers: { Authorization: authToken } }
   );

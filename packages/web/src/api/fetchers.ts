@@ -59,9 +59,9 @@ export const useSharedGraphsSWR = (
   };
 };
 
-export const useGraphExpressionsSWR = (
+export const useBranchExpressionsSWR = (
   authToken: string | null,
-  graphID: string | null | undefined
+  branchID: string | null
 ): {
   expressions: string[] | undefined;
   isLoading: boolean;
@@ -72,7 +72,7 @@ export const useGraphExpressionsSWR = (
   ) => Promise<unknown>;
 } => {
   const { data, mutate, error } = useSWR(
-    graphID && authToken ? `/api/graph/${graphID}/branch/me/expressions` : null, // doesn't fetch if graphID or authToken are falsey
+    authToken && branchID ? `/api/branch/${branchID}/expressions` : null,
     (url: string) => fetcher(url, authToken as string)
   );
   return {
@@ -81,5 +81,43 @@ export const useGraphExpressionsSWR = (
     isLoading: !error && data,
     isError: error,
     mutate: mutate,
+  };
+};
+
+export const useMyBranchIDSWR = (
+  authToken: string | null,
+  graphID: string | null
+): {
+  id: string | undefined;
+  isLoading: boolean;
+  isError: boolean;
+} => {
+  const { data, error } = useSWR(
+    authToken && graphID ? `/api/graph/${graphID}/branch/me/id` : null,
+    (url: string) => fetcher(url, authToken as string)
+  );
+  return {
+    id: data && data.id ? (data.id as string) : undefined,
+    isLoading: !error && data,
+    isError: error,
+  };
+};
+
+export const useBranchesDataSWR = (
+  authToken: string | null,
+  graphID: string | null
+): {
+  branches: [{ id: string; owner: { email: string } }] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+} => {
+  const { data, error } = useSWR(
+    authToken && graphID ? `/api/graph/${graphID}/branches` : null,
+    (url: string) => fetcher(url, authToken as string)
+  );
+  return {
+    branches: data && data.branches ? data.branches : undefined,
+    isLoading: !error && data,
+    isError: error,
   };
 };

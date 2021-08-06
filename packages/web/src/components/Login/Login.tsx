@@ -3,10 +3,10 @@ import {
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import axios from "axios";
 import { Paper, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
-import { setAuthToken } from "../../redux/slices/authSlice";
+import { setAuth } from "../../redux/slices/authSlice";
+import { loginRequest } from "../../api/requesters";
 
 type LoginResponse = GoogleLoginResponse | GoogleLoginResponseOffline;
 const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {
@@ -19,16 +19,15 @@ const Login: React.FC = () => {
   const handleLogin = async (data: LoginResponse) => {
     if (isOnlineResponse(data)) {
       try {
-        await axios.post(
-          "/api/auth/google",
-          {},
-          {
-            headers: {
-              Authorization: data.tokenId as string,
-            },
-          }
+        const res = await loginRequest(data.tokenId as string);
+        if (res.status !== 200) throw new Error("Failed to log in.");
+
+        dispatch(
+          setAuth({
+            token: data.tokenId,
+            email: (res.data as { email: string }).email,
+          })
         );
-        dispatch(setAuthToken(data.tokenId));
       } catch (err) {
         console.log(err);
       }

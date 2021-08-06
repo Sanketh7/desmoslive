@@ -9,6 +9,7 @@ import { connect } from "./connect";
 import { authRouter } from "./routers/auth.router";
 import { userRouter } from "./routers/user.router";
 import { graphRouter } from "./routers/graph.router";
+import { branchRouter } from "./routers/branch.router";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(express.json()); // parses JSON payloads
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/graph", graphRouter);
+app.use("/api/branch", branchRouter);
 
 connect()
   .then(() =>

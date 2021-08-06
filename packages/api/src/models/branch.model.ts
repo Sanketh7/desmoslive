@@ -17,7 +17,7 @@ export class Branch {
   @ManyToOne(() => Graph, (graph) => graph.branches, { onDelete: "CASCADE" })
   graph!: Graph;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   owner!: User;
 
   @Column("text", { array: true })

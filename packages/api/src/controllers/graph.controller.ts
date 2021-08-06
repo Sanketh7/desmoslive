@@ -1,4 +1,5 @@
 import { getConnection, getRepository } from "typeorm";
+import { Branch } from "../models/branch.model";
 import { Graph } from "../models/graph.model";
 import { User } from "../models/user.model";
 import { HTTPError } from "../routers/util";
@@ -81,6 +82,11 @@ export const renameGraph = async (graphID: string, name: string): Promise<boolea
   graph.name = name;
   graphRepo.save(graph);
   return true;
+}
+
+export const getBranches = async (graphID: string): Promise<Branch[] | undefined> => {
+  const graph = await getRepository(Graph).findOne(graphID, { relations: ["branches"] });
+  return graph && graph.branches ? graph.branches : undefined;
 }
 
 export const validateOwner = async (

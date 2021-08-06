@@ -12,7 +12,7 @@ import { SaveTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import { mutate } from "swr";
-import { updateExpressionsRequest } from "../../../api/requesters";
+import { updateBranchExpressionsRequest } from "../../../api/requesters";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setExpressionsChanges } from "../../../redux/slices/expressionsSlice";
 
@@ -27,6 +27,7 @@ export const SaveButton: React.FC = () => {
   );
   const authToken = useAppSelector((state) => state.auth.token);
   const activeGraph = useAppSelector((state) => state.activeGraph);
+  const activeBranch = useAppSelector((state) => state.activeBranch);
 
   const dispatch = useAppDispatch();
 
@@ -37,15 +38,15 @@ export const SaveButton: React.FC = () => {
     try {
       if (!authToken) throw new Error("No authentication.");
       if (!activeGraph.id) throw new Error("No active graph.");
-      const res = await updateExpressionsRequest(
+      const res = await updateBranchExpressionsRequest(
         authToken as string,
-        activeGraph.id as string,
+        activeBranch.id as string,
         currentExpressions.map((expr) => expr.latex)
       );
       // clear changes
       dispatch(setExpressionsChanges([]));
       // force swr to update
-      mutate(`/api/graph/${activeGraph.id}/branch/me/expressions`);
+      mutate(`/api/branch/${activeBranch.id}/expressions`);
 
       setSuccess(res.status === 200);
       setSnackbarOpen(true);
@@ -59,7 +60,7 @@ export const SaveButton: React.FC = () => {
   return (
     <>
       <IconButton
-        disabled={changes.length === 0}
+        disabled={changes.length === 0 || !activeBranch.isOwner}
         onClick={() => setDialogOpen(true)}
       >
         <SaveTwoTone />

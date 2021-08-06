@@ -6,12 +6,13 @@ import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import CalculatorHeader from "./CalculatorHeader";
 import { ExpressionChange } from "../../../interfaces/expressions";
-import { useGraphExpressionsSWR } from "../../../api/fetchers";
+import { useBranchExpressionsSWR } from "../../../api/fetchers";
 import {
   setExpressionsChanges,
   setExpressionsCurrent,
 } from "../../../redux/slices/expressionsSlice";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { mutate } from "swr";
 
 const Calculator = (): JSX.Element => {
   const calcElem = useRef(document.createElement("div"));
@@ -20,12 +21,15 @@ const Calculator = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const authToken = useAppSelector((state) => state.auth.token);
-  const activeGraph = useAppSelector((state) => state.activeGraph);
+  const activeBranch = useAppSelector((state) => state.activeBranch);
 
-  const { expressions: oldExpressions } = useGraphExpressionsSWR(
-    authToken,
-    activeGraph.id
-  );
+  const { expressions: oldExpressions, mutate: mutateExpressions } =
+    useBranchExpressionsSWR(authToken, activeBranch.id);
+
+  // force refresh of expressions when branch is changed
+  useEffect(() => {
+    mutateExpressions();
+  }, [activeBranch]);
 
   // updates redux store with changes
   const updateChanges = async () => {

@@ -20,7 +20,7 @@ export class Graph {
   @Column()
   name!: string;
 
-  @ManyToOne(() => User, (user) => user.myGraphs, { cascade: true })
+  @ManyToOne(() => User, (user) => user.myGraphs, { cascade: true, eager: true })
   @JoinColumn()
   owner!: User;
 
