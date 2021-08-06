@@ -16,7 +16,11 @@ import { DeleteTwoTone, EditTwoTone, ShareTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import * as EmailValidator from "email-validator";
-import { deleteGraphRequest, shareGraphRequest } from "../../../api/requesters";
+import {
+  deleteGraphRequest,
+  renameGraphRequest,
+  shareGraphRequest,
+} from "../../../api/requesters";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   resetActiveGraph,
@@ -40,6 +44,11 @@ const CalculatorHeader = (): JSX.Element => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteSnackbarOpen, setDeleteSnackbarOpen] = useState(false);
   const [deleteSnackbarSuccess, setDeleteSnackbarSuccess] = useState(false);
+
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [renameEntry, setRenameEntry] = useState("");
+  const [renameSnackbarOpen, setRenameSnackbarOpen] = useState(false);
+  const [renameSnackbarSuccess, setRenameSnackbarSuccess] = useState(false);
 
   // callback for handling the share dialog
   const handleShareDialogSubmit: React.FormEventHandler<HTMLFormElement> =
@@ -84,6 +93,39 @@ const CalculatorHeader = (): JSX.Element => {
       }
     };
 
+  const handleRenameDialogSubmit: React.FormEventHandler<HTMLFormElement> =
+    async (event) => {
+      event.preventDefault();
+      try {
+        if (!authToken) throw new Error("Needs authentication.");
+        if (!activeGraph.id) throw new Error("No active graph.");
+        const res = await renameGraphRequest(
+          authToken,
+          activeGraph.id,
+          renameEntry
+        );
+
+        setRenameSnackbarSuccess(res.status === 200);
+        setRenameSnackbarOpen(true);
+
+        // refresh active file
+        dispatch(
+          setActiveGraph({
+            name: renameEntry,
+            id: activeGraph.id,
+            isOwner: activeGraph.isOwner,
+          })
+        );
+
+        // update my graphs in the file tree
+        await mutate("/api/user/me/myGraphs");
+      } catch (err) {
+        console.log(err);
+        setRenameSnackbarSuccess(false);
+        setRenameSnackbarOpen(true);
+      }
+    };
+
   return activeGraph.id ? (
     <div>
       <span
@@ -101,11 +143,70 @@ const CalculatorHeader = (): JSX.Element => {
             {activeGraph.name}
           </Typography>
         </Paper>
-        <Tooltip title="Rename" aria-label="rename">
-          <IconButton aria-label="edit">
-            <EditTwoTone />
-          </IconButton>
-        </Tooltip>
+
+        {activeGraph.isOwner && (
+          <>
+            <Tooltip title="Rename" aria-label="rename">
+              <IconButton
+                onClick={() => setRenameDialogOpen(true)}
+                aria-label="edit"
+              >
+                <EditTwoTone />
+              </IconButton>
+            </Tooltip>
+            <Dialog
+              open={renameDialogOpen}
+              onClose={() => setRenameDialogOpen(false)}
+              aria-labelledby="rename-dialog-title"
+            >
+              <DialogTitle id="rename-dialog-title">Rename Graph</DialogTitle>
+              <form onSubmit={handleRenameDialogSubmit}>
+                <DialogContent>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="renameEntry"
+                    label="Graph Name"
+                    variant="outlined"
+                    value={renameEntry}
+                    onChange={(event) => setRenameEntry(event.target.value)}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={() => setRenameDialogOpen(false)}
+                    color="primary"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={!renameEntry}
+                    onClick={() => setRenameDialogOpen(false)}
+                    color="primary"
+                  >
+                    Rename
+                  </Button>
+                </DialogActions>
+              </form>
+            </Dialog>
+
+            <Snackbar
+              open={renameSnackbarOpen}
+              autoHideDuration={6000}
+              onClose={() => setRenameSnackbarOpen(false)}
+            >
+              <Alert
+                onClose={() => setRenameSnackbarOpen(false)}
+                severity={renameSnackbarSuccess ? "success" : "error"}
+              >
+                {renameSnackbarSuccess
+                  ? "Renamed graph!"
+                  : "Failed to rename graph!"}
+              </Alert>
+            </Snackbar>
+          </>
+        )}
 
         {activeGraph.isOwner && (
           <>

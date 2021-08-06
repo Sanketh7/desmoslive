@@ -29,8 +29,8 @@ export const shareGraphRequest = async (
   shareEmail: string
 ): Promise<AxiosResponse<unknown>> => {
   return await axios.put(
-    `/api/graph/${graphID}/share/${shareEmail}`,
-    {},
+    `/api/graph/${graphID}/share`,
+    { email: shareEmail },
     { headers: { Authorization: authToken } }
   );
 };
@@ -42,4 +42,16 @@ export const deleteGraphRequest = async (
   return await axios.delete(`/api/graph/${graphID}/delete`, {
     headers: { Authorization: authToken },
   });
+};
+
+export const renameGraphRequest = async (
+  authToken: string,
+  graphID: string,
+  graphName: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.put(
+    `/api/graph/${graphID}/rename`,
+    { graphName: graphName },
+    { headers: { Authorization: authToken } }
+  );
 };

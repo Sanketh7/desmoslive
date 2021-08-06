@@ -74,6 +74,15 @@ export const deleteGraph = async (graphID: string): Promise<boolean> => {
   return true;
 }
 
+export const renameGraph = async (graphID: string, name: string): Promise<boolean> => {
+  const graphRepo = getRepository(Graph);
+  const graph = await graphRepo.findOne(graphID);
+  if (!graph) return false;
+  graph.name = name;
+  graphRepo.save(graph);
+  return true;
+}
+
 export const validateOwner = async (
   graphID: string,
   email: string

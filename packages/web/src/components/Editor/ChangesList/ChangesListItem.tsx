@@ -2,11 +2,7 @@ import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
 import { ExpressionChange } from "../../../interfaces/expressions";
-import {
-  AddTwoTone,
-  FiberManualRecordTwoTone,
-  RemoveTwoTone,
-} from "@material-ui/icons";
+import { AddTwoTone, RemoveTwoTone } from "@material-ui/icons";
 
 interface Props {
   change: ExpressionChange;

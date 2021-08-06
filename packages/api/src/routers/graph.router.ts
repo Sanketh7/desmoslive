@@ -8,6 +8,7 @@ import {
 import {
   deleteGraph,
   getGraphByID,
+  renameGraph,
   shareGraph,
   validateCollaborator,
   validateOwner,
@@ -23,9 +24,10 @@ const router = express.Router();
  * 404 if parameters are undefined or the collaborator isn't found
  * 403 if the user can't modify this graph
  */
-router.put("/:graphID/share/:email", googleAuth, async (req, res) => {
+router.put("/:graphID/share", googleAuth, async (req, res) => {
   try {
-    const { graphID, email } = req.params;
+    const { graphID } = req.params;
+    const { email } = req.body;
     if (!graphID || !email) throw new HTTPError(404);
 
     const graph = await getGraphByID(graphID);
@@ -97,8 +99,6 @@ router.put("/:graphID/branch/me/expressions", googleAuth, async (req, res) => {
   }
 });
 
-export { router as graphRouter };
-
 router.delete("/:graphID/delete", googleAuth, async (req, res) => {
   try {
     const graphID = req.params.graphID;
@@ -117,4 +117,25 @@ router.delete("/:graphID/delete", googleAuth, async (req, res) => {
   } catch (err) {
     handleHTTPError(err, res);
   }
+});
+
+router.put("/:graphID/rename", googleAuth, async (req, res) => {
+  try {
+    const { graphID } = req.params;
+    const { graphName } = req.body;
+    if (!graphID || !graphName) throw new HTTPError(404);
+
+    // only owner can rename a graph
+    const isOwner = await validateOwner(graphID, req.appData.user.email);
+    if (!isOwner) throw new HTTPError(403);
+
+    const ok = await renameGraph(graphID, graphName);
+    if (!ok) throw new HTTPError(404);
+
+    res.status(200).end();
+  } catch (err) {
+    handleHTTPError(err, res);
+  }
 })
+
+export { router as graphRouter };
