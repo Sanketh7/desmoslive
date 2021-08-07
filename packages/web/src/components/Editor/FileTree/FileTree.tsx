@@ -2,7 +2,7 @@ import { TreeView } from "@material-ui/lab";
 import { ArrowDropDown, ArrowRight } from "@material-ui/icons";
 import FileTreeFolder from "./FileTreeFolder";
 import FileTreeItem from "./FileTreeItem";
-import { useMyGraphsSWR, useSharedGraphsSWR } from "../../../api/fetchers";
+import { useMyGraphsSWR, useSharedGraphsSWR } from "../../../api/swrRequests";
 import { FileTreeHeader } from "./FileTreeHeader";
 import { Paper } from "@material-ui/core";
 import { useSelector } from "react-redux";

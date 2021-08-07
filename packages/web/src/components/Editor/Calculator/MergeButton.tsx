@@ -9,40 +9,45 @@ import {
   Snackbar,
   Tooltip,
 } from "@material-ui/core";
-import { DeleteTwoTone } from "@material-ui/icons";
+import { MergeTypeTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
-import { mutate } from "swr";
-import { deleteGraphRequest } from "../../../api/requests";
+import { getMergeBranchRequest } from "../../../api/requests";
+import { useMyBranchIDSWR } from "../../../api/swrRequests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { resetActiveGraph } from "../../../redux/slices/activeGraphSlice";
+import { setActiveBranch } from "../../../redux/slices/activeBranchSlice";
 
-export const DeleteButton: React.FC = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [success, setSuccess] = useState(false);
-
+export const MergeButton: React.FC = () => {
   const authToken = useAppSelector((state) => state.auth.token);
+  const activeBranch = useAppSelector((state) => state.activeBranch);
   const activeGraph = useAppSelector((state) => state.activeGraph);
 
   const dispatch = useAppDispatch();
+
+  const { id: myBranchID } = useMyBranchIDSWR(authToken, activeGraph.id);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
     event
   ) => {
     event.preventDefault();
     try {
-      if (!authToken) throw new Error("Needs authentication.");
-      if (!activeGraph.id) throw new Error("No active graph.");
-      const res = await deleteGraphRequest(authToken, activeGraph.id);
+      if (!authToken) throw new Error("Needs authentication");
+      if (!activeBranch.id) throw new Error("No branch selected.");
+      if (!myBranchID) throw new Error("No branch to merge into.");
+      const res = await getMergeBranchRequest(
+        authToken,
+        activeBranch.id,
+        myBranchID
+      );
 
       setSuccess(res.status === 200);
       setSnackbarOpen(true);
-      // nullify active graph
-      dispatch(resetActiveGraph());
 
-      // update my graphs in the file tree
-      await mutate("/api/user/me/myGraphs");
+      dispatch(setActiveBranch({ id: myBranchID, isOwner: true }));
     } catch (err) {
       console.log(err);
       setSuccess(false);
@@ -52,23 +57,26 @@ export const DeleteButton: React.FC = () => {
 
   return (
     <>
-      <Tooltip title="Delete" aria-label="delete">
-        <IconButton onClick={() => setDialogOpen(true)}>
-          <DeleteTwoTone />
+      <Tooltip title="Merge" aria-label="merge">
+        <IconButton
+          onClick={() => setDialogOpen(true)}
+          disabled={activeBranch.isOwner}
+        >
+          <MergeTypeTwoTone />
         </IconButton>
       </Tooltip>
       <Dialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
+        aria-labelledby="merge-dialog-title"
+        aria-describedby="merge-dialog-description"
       >
-        <DialogTitle id="delete-dialog-title">Delete Graph?</DialogTitle>
+        <DialogTitle id="merge-dialog-title">Merge Branch?</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <DialogContentText id="delete-dialog-description">
-              Deleting the graph is a <strong>PERMANENT</strong> action.
-              Collaborators will no longer be able to access the graph as well.
+              This will merge the current branch into <strong>YOUR</strong>{" "}
+              branch.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -81,7 +89,7 @@ export const DeleteButton: React.FC = () => {
               color="primary"
               autoFocus
             >
-              Delete
+              Merge
             </Button>
           </DialogActions>
         </form>
@@ -95,7 +103,7 @@ export const DeleteButton: React.FC = () => {
           onClose={() => setSnackbarOpen(false)}
           severity={success ? "success" : "error"}
         >
-          {success ? "Deleted graph!" : "Failed to delete graph!"}
+          {success ? "Merged branch!" : "Failed to merge graph!"}
         </Alert>
       </Snackbar>
     </>

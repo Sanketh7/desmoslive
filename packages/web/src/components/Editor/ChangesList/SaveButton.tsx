@@ -12,7 +12,7 @@ import { SaveTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import { mutate } from "swr";
-import { updateBranchExpressionsRequest } from "../../../api/requesters";
+import { updateBranchExpressionsRequest } from "../../../api/requests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setExpressionsChanges } from "../../../redux/slices/expressionsSlice";
 

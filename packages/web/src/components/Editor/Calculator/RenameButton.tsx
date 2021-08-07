@@ -13,7 +13,7 @@ import { EditTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import { mutate } from "swr";
-import { renameGraphRequest } from "../../../api/requesters";
+import { renameGraphRequest } from "../../../api/requests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setActiveGraph } from "../../../redux/slices/activeGraphSlice";
 

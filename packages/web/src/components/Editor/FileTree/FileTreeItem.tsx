@@ -15,11 +15,11 @@ const FileTreeItem = ({ graphName, graphID, isOwner }: Props): JSX.Element => {
       nodeId={graphID}
       label={graphName}
       //onClick={() => setActiveGraph({ name: graphName, id: graphID })}
-      onClick={() =>
+      onClick={() => {
         dispatch(
           setActiveGraph({ name: graphName, id: graphID, isOwner: isOwner })
-        )
-      }
+        );
+      }}
     />
   );
 };

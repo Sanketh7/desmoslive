@@ -128,7 +128,7 @@ router.put("/:graphID/rename", googleAuth, async (req, res) => {
     res.status(200).end();
   } catch (err) {
     handleHTTPError(err, res);
-  }
-})
+  };
+});
 
 export { router as graphRouter };

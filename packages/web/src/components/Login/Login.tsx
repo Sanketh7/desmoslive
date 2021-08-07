@@ -6,7 +6,7 @@ import {
 import { Paper, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import { setAuth } from "../../redux/slices/authSlice";
-import { loginRequest } from "../../api/requesters";
+import { loginRequest } from "../../api/requests";
 
 type LoginResponse = GoogleLoginResponse | GoogleLoginResponseOffline;
 const isOnlineResponse = (res: LoginResponse): res is GoogleLoginResponse => {

@@ -14,7 +14,7 @@ import {
 import { AddTwoTone, RefreshTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import { useState } from "react";
-import { createGraphRequest } from "../../../api/requesters";
+import { createGraphRequest } from "../../../api/requests";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 

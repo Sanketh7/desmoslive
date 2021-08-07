@@ -6,13 +6,12 @@ import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import CalculatorHeader from "./CalculatorHeader";
 import { ExpressionChange } from "../../../interfaces/expressions";
-import { useBranchExpressionsSWR } from "../../../api/fetchers";
+import { useBranchExpressionsSWR } from "../../../api/swrRequests";
 import {
   setExpressionsChanges,
   setExpressionsCurrent,
 } from "../../../redux/slices/expressionsSlice";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { mutate } from "swr";
 
 const Calculator = (): JSX.Element => {
   const calcElem = useRef(document.createElement("div"));
@@ -72,6 +71,7 @@ const Calculator = (): JSX.Element => {
     calculator.current = Desmos.GraphingCalculator(calcElem.current);
   }, []); // only runs on component mount
 
+  // whenever the old expressions change, update the calculator to reflect these changes
   useEffect(() => {
     calculator.current.observeEvent("change", throttledUpdateChangesList);
     calculator.current.setBlank();

@@ -1,5 +1,6 @@
 import express from "express";
-import { getBranchExpressions, getGraphFromBranch, updateBranchExpressions, validateBranchOwner } from "../controllers/branch.controller";
+import { Http2ServerRequest } from "http2";
+import { getBranchExpressions, getGraphFromBranch, mergeBranchExpressions, updateBranchExpressions, validateBranchOwner } from "../controllers/branch.controller";
 import { validateCollaborator, validateOwner } from "../controllers/graph.controller";
 import { googleAuth } from "../tokenAuth";
 import { HTTPError, handleHTTPError, isStringArray } from "./util";
@@ -47,6 +48,29 @@ router.put("/:branchID/expressions", googleAuth, async (req, res) => {
   } catch (err) {
     handleHTTPError(err, res);
   }
-})
+});
+
+router.put("/merge", googleAuth, async (req, res) => {
+  try {
+    const { source, target } = req.query;
+    if (!source || !target) throw new HTTPError(404);
+
+    // make sure both branches are in the same graph
+    const graph1 = await getGraphFromBranch(source as string);
+    const graph2 = await getGraphFromBranch(target as string);
+    if (!graph1 || !graph2 || graph1.id !== graph2.id) throw new HTTPError(404);
+
+    // make sure user is owner of target branch
+    const isBranchOwner = await validateBranchOwner(target as string, req.appData.user.email);
+    if (!isBranchOwner) throw new HTTPError(403);
+
+    const ok = await mergeBranchExpressions(source as string, target as string);
+    if (!ok) throw new HTTPError(404);
+
+    res.status(200).end();
+  } catch (err) {
+    handleHTTPError(err, res);
+  }
+});
 
 export { router as branchRouter };

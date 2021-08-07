@@ -1,9 +1,8 @@
-import { relative } from "path/posix";
+import * as _ from "lodash";
 import { getRepository } from "typeorm";
 import { Branch } from "../models/branch.model";
 import { Graph } from "../models/graph.model";
 import { User } from "../models/user.model";
-import { getGraphByID } from "./graph.controller";
 
 /**
  * creates a new branch
@@ -63,4 +62,15 @@ export const getGraphFromBranch = async (branchID: string): Promise<Graph | unde
 export const validateBranchOwner = async (branchID: string, email: string): Promise<boolean> => {
   const branch = await getRepository(Branch).findOne(branchID, { relations: ["owner"] });
   return Boolean(branch && branch.owner.email === email);
-}
+};
+
+export const mergeBranchExpressions = async (srcBranchID: string, targetBranchID: string): Promise<boolean> => {
+  const branchRepo = getRepository(Branch);
+  const srcBranch = await branchRepo.findOne(srcBranchID);
+  const targetBranch = await branchRepo.findOne(targetBranchID);
+  if (!srcBranch || !targetBranch) return false;
+
+  targetBranch.expressions = _.union(srcBranch.expressions, targetBranch.expressions);
+  branchRepo.save(targetBranch);
+  return true;
+};

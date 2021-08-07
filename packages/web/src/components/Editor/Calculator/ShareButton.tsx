@@ -14,7 +14,7 @@ import { ShareTwoTone } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import * as EmailValidator from "email-validator";
 import { useAppSelector } from "../../../redux/hooks";
-import { shareGraphRequest } from "../../../api/requesters";
+import { shareGraphRequest } from "../../../api/requests";
 
 export const ShareButton: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);

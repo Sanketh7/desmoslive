@@ -65,3 +65,15 @@ export const renameGraphRequest = async (
     { headers: { Authorization: authToken } }
   );
 };
+
+export const getMergeBranchRequest = async (
+  authToken: string,
+  srcBranchID: string,
+  targetBranchID: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.put(
+    `/api/branch/merge?source=${srcBranchID}&target=${targetBranchID}`,
+    {},
+    { headers: { Authorization: authToken } }
+  );
+};

@@ -7,7 +7,7 @@ import { SaveButton } from "./SaveButton";
 
 const ChangesList = (): JSX.Element => {
   const changes = useAppSelector((state) => state.expressions.changes);
-
+  // TODO: discard changes
   return (
     <div
       style={{
