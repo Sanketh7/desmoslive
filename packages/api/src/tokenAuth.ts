@@ -1,8 +1,10 @@
 import express from "express";
+import { createNodeRedisClient } from "handy-redis";
 import { LoginTicket, OAuth2Client, TokenPayload } from "google-auth-library";
 import { getUserByEmail } from "./controllers/user.controller";
 import { User } from "./models/user.model";
 import { handleHTTPError, HTTPError } from "./routers/util";
+import { checkInvalid } from "./tokenCache";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 
@@ -32,6 +34,9 @@ export const googleAuth = async (
 ): Promise<void> => {
   try {
     if (!req.headers.authorization) throw new HTTPError(401);
+
+    const isInvalidated = await checkInvalid(req.headers.authorization);
+    if (isInvalidated) throw new HTTPError(401);
 
     const ticket: LoginTicket = await oauthClient.verifyIdToken({
       idToken: req.headers.authorization,

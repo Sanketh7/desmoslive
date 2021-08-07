@@ -77,3 +77,11 @@ export const getMergeBranchRequest = async (
     { headers: { Authorization: authToken } }
   );
 };
+
+export const logoutRequest = async (
+  authToken: string
+): Promise<AxiosResponse<unknown>> => {
+  return await axios.delete(`/api/auth/logout`, {
+    headers: { Authorization: authToken },
+  });
+};

@@ -1,7 +1,8 @@
 import express from "express";
 import { LoginTicket, TokenPayload } from "google-auth-library";
 import { createUser } from "../controllers/user.controller";
-import { oauthClient } from "../tokenAuth";
+import { googleAuth, oauthClient } from "../tokenAuth";
+import { invalidateToken } from "../tokenCache";
 import { handleHTTPError, HTTPError } from "./util";
 
 const router = express.Router();
@@ -32,5 +33,9 @@ router.post("/google", async (req, res) => {
 });
 
 // TODO: logout route
+router.delete("/logout", googleAuth, async (req, res) => {
+  await invalidateToken(req.appData.authToken);
+  res.status(200).end();
+});
 
 export { router as authRouter };
