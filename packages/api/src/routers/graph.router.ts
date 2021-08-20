@@ -1,5 +1,4 @@
 import express from "express";
-import { Http2ServerRequest } from "http2";
 import {
   createBranch,
   getBranchExpressions,

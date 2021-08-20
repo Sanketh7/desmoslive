@@ -1,5 +1,4 @@
 import express from "express";
-import { Http2ServerRequest } from "http2";
 import { getBranchExpressions, getGraphFromBranch, mergeBranchExpressions, updateBranchExpressions, validateBranchOwner } from "../controllers/branch.controller";
 import { validateCollaborator, validateOwner } from "../controllers/graph.controller";
 import { googleAuth } from "../tokenAuth";

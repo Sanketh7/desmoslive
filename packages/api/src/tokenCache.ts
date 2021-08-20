@@ -3,7 +3,7 @@ import { createNodeRedisClient } from "handy-redis";
 // invalid tokens expire in the cache after 2 hours to save space
 const TOKEN_EXPIRE_TIME = 60 * 60 * 2;
 
-const tokenCache = createNodeRedisClient();
+const tokenCache = process.env.NODE_ENV === "production" ? createNodeRedisClient({host: "redis"}) : createNodeRedisClient();
 
 export const invalidateToken = async (token: string): Promise<void> => {
   await tokenCache.set(token, "invalid");

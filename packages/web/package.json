@@ -13,10 +13,14 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/diff": "^5.0.1",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.172",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/uuid": "^8.3.1",
+    "axios": "^0.21.1",
     "desmos": "^1.5.4",
     "diff": "^5.0.0",
     "email-validator": "^2.0.4",
@@ -35,7 +39,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts --max_old_space_size=100000 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

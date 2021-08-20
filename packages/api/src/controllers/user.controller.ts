@@ -1,6 +1,5 @@
 import { getConnection, getRepository } from "typeorm";
 import { User } from "../models/user.model";
-import { userRouter } from "../routers/user.router";
 
 /**
  * finds User entity by email

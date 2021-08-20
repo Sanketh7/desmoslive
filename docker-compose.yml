@@ -1,0 +1,25 @@
+version: '3.7'
+
+services: 
+  backend:
+    container_name: desmoslive-api
+    env_file: packages/api/.env
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    image: sanketh7/desmoslive-api:latest
+    ports:
+      - 5000:5000
+
+  frontend:
+    container_name: desmoslive-web
+    env_file: packages/web/.env
+    build: 
+      context: .
+      dockerfile: packages/web/Dockerfile
+    image: sanketh7/desmoslive-web:latest
+    ports: 
+      - 80:80
+
+  redis:
+    image: redis:alpine

@@ -1,5 +1,4 @@
 import express from "express";
-import { createNodeRedisClient } from "handy-redis";
 import { LoginTicket, OAuth2Client, TokenPayload } from "google-auth-library";
 import { getUserByEmail } from "./controllers/user.controller";
 import { User } from "./models/user.model";
