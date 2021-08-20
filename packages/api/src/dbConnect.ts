@@ -10,5 +10,10 @@ export const dbConnect = async (): Promise<Connection> => {
     database: process.env.DB_DATABASE,
     entities: [__dirname + "/models/*.model.ts"],
     synchronize: true,
+    extra: {
+      poolSize: 4,
+      idleTimeoutMillis: 5000, // Drop connections that are stalled
+      connectionTimeoutMillis: 10000, // Drop connections that are stalled
+    }
   });
 };

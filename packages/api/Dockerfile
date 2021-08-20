@@ -8,6 +8,7 @@ COPY ./yarn.lock .
 
 COPY ./packages/api ./packages/api
 
+RUN yarn global add ts-node typescript
 RUN yarn workspace @desmoslive/api install --production=true
 
 WORKDIR /app/packages/api
