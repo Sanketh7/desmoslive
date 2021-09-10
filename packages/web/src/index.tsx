@@ -1,30 +1,16 @@
 import "@fontsource/roboto";
 import React from "react";
 import ReactDOM from "react-dom";
+import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#388e3c",
-    },
-    secondary: {
-      main: "#cddc39",
-    },
-  },
-});
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
-      </ThemeProvider>
+      <App />
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")

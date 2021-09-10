@@ -3,7 +3,6 @@ import {
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { Paper, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import { setAuth } from "../../redux/slices/authSlice";
 import { loginRequest } from "../../api/requests";
@@ -34,23 +33,9 @@ const Login: React.FC = () => {
     }
   };
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "#e2fee2",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Paper
-        elevation={3}
-        style={{ minWidth: "30%", textAlign: "center", padding: "3% 1%" }}
-      >
-        <Typography variant="h4" color="primary" style={{ marginBottom: "5%" }}>
-          Sign In
-        </Typography>
+    <div className="h-screen bg-gradient-to-br from-green-600 to-blue-400 flex justify-center items-center">
+      <div className="bg-gray-300 bg-opacity-50 w-1/2 h-1/2 flex flex-col justify-between items-center p-12 rounded-xl">
+        <div className="text-5xl font-sans font-bold">Sign In</div>
         <GoogleLogin
           clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}
           buttonText="Log in with Google"
@@ -58,7 +43,7 @@ const Login: React.FC = () => {
           onFailure={handleLogin}
           cookiePolicy="single_host_origin"
         />
-      </Paper>
+      </div>
     </div>
   );
 };
