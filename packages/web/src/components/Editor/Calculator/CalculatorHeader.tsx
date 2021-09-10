@@ -1,58 +1,45 @@
-import { Paper, Typography } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import { useAppSelector } from "../../../redux/hooks";
 import { ShareButton } from "./ShareButton";
 import { RenameButton } from "./RenameButton";
 import { DeleteButton } from "./DeleteButton";
 import { BranchSelect } from "./BranchSelect";
+import { BiError, BiCheckCircle } from "react-icons/bi";
 
 const CalculatorHeader = (): JSX.Element => {
   const activeGraph = useAppSelector((state) => state.activeGraph);
   const changes = useAppSelector((state) => state.expressions.changes);
 
-  return activeGraph.id ? (
-    <>
-      <div>
-        <span
-          style={{
-            float: "left",
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "1em",
-          }}
-        >
-          <Paper
-            variant="outlined"
-            elevation={3}
-            style={{ display: "inline-block" }}
-          >
-            <Typography
-              variant="h5"
-              style={{ padding: "0.25em 0.5em 0.25em 0.5em" }}
-            >
-              {activeGraph.name}
-            </Typography>
-          </Paper>
-
+  return (
+    <div className="py-1 px-2">
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-x-4">
+          <span className="text-lg py-1 px-2 bg-white rounded-md border-2 border-black">
+            {activeGraph.name}
+          </span>
           {activeGraph.isOwner && (
-            <>
+            <span className="text-xl flex items-center">
               <RenameButton />
               <ShareButton />
               <DeleteButton />
-            </>
+            </span>
           )}
-        </span>
-        <Alert
-          severity={changes.length > 0 ? "warning" : "success"}
-          style={{ float: "right" }}
+        </div>
+        <div
+          className={
+            "py-1 px-2 rounded-md text-lg flex items-center gap-x-2 " +
+            (changes.length > 0 ? "bg-red-300" : "bg-green-300")
+          }
         >
-          {changes.length > 0 ? "Unsaved changes!" : "No unsaved changes."}
-        </Alert>
+          {changes.length > 0 ? <BiError /> : <BiCheckCircle />}
+          <span>
+            {changes.length > 0 ? "Unsaved Changes!" : "No Unsaved Changes"}
+          </span>
+        </div>
       </div>
-      <BranchSelect />
-    </>
-  ) : (
-    <Alert severity="info">Select a graph on the left to edit.</Alert>
+      <div className="w-full">
+        <BranchSelect />
+      </div>
+    </div>
   );
 };
 

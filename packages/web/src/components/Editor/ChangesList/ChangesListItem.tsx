@@ -1,8 +1,6 @@
-import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
 import { ExpressionChange } from "../../../interfaces/expressions";
-import { AddTwoTone, RemoveTwoTone } from "@material-ui/icons";
 
 interface Props {
   change: ExpressionChange;
@@ -10,18 +8,14 @@ interface Props {
 
 const ChangesListItem = ({ change }: Props): JSX.Element => {
   return (
-    <ListItem divider>
-      <ListItemIcon>
-        {change.changeType === "added" ? (
-          <AddTwoTone htmlColor="green" fontSize="large" />
-        ) : (
-          <RemoveTwoTone htmlColor="red" fontSize="large" />
-        )}
-      </ListItemIcon>
-      <ListItemText>
-        <TeX math={change.latex} style={{ fontSize: "1.5rem" }} />
-      </ListItemText>
-    </ListItem>
+    <div
+      className={
+        "w-full h-min p-1 m-1 rounded-sm text-sm text-center whitespace-nowrap overflow-hidden " +
+        (change.changeType === "added" ? "bg-green-300" : "bg-red-300")
+      }
+    >
+      <TeX math={change.latex} />
+    </div>
   );
 };
 

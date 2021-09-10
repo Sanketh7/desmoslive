@@ -1,21 +1,12 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  Snackbar,
-  Tooltip,
-} from "@material-ui/core";
-import { MergeTypeTwoTone } from "@material-ui/icons";
-import { Alert } from "@material-ui/lab";
+import IconButton from "../../common/IconButton";
+import { Dialog } from "@headlessui/react";
+import { TiFlowMerge } from "react-icons/ti";
 import { useState } from "react";
 import { getMergeBranchRequest } from "../../../api/requests";
 import { useMyBranchIDSWR } from "../../../api/swrRequests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setActiveBranch } from "../../../redux/slices/activeBranchSlice";
+import DialogButton from "../../common/DialogButton";
 
 export const MergeButton: React.FC = () => {
   const authToken = useAppSelector((state) => state.auth.token);
@@ -27,13 +18,11 @@ export const MergeButton: React.FC = () => {
   const { id: myBranchID } = useMyBranchIDSWR(authToken, activeGraph.id);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  // TODO: implement snackbar
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    event.preventDefault();
+  const handleMerge = async () => {
     try {
       if (!authToken) throw new Error("Needs authentication");
       if (!activeBranch.id) throw new Error("No branch selected.");
@@ -56,56 +45,51 @@ export const MergeButton: React.FC = () => {
   };
 
   return (
-    <>
-      <Tooltip title="Merge" aria-label="merge">
-        <IconButton
-          onClick={() => setDialogOpen(true)}
-          disabled={activeBranch.isOwner}
-        >
-          <MergeTypeTwoTone />
-        </IconButton>
-      </Tooltip>
+    <div>
+      <IconButton
+        disabled={activeBranch.isOwner}
+        onClick={() => setDialogOpen(true)}
+      >
+        <TiFlowMerge className="text-xl" />
+      </IconButton>
+
       <Dialog
+        as="div"
+        className="fixed inset-0 text-center flex bg-black bg-opacity-50"
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        aria-labelledby="merge-dialog-title"
-        aria-describedby="merge-dialog-description"
       >
-        <DialogTitle id="merge-dialog-title">Merge Branch?</DialogTitle>
-        <form onSubmit={handleSubmit}>
-          <DialogContent>
-            <DialogContentText id="delete-dialog-description">
-              This will merge the current branch into <strong>YOUR</strong>{" "}
-              branch.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDialogOpen(false)} color="primary">
-              Cancel
-            </Button>
-            <Button
-              type="submit"
+        <Dialog.Overlay />
+        <div className="bg-white w-1/3 m-auto border border-green-700 rounded-xl p-4">
+          <Dialog.Title className="text-2xl font-bold">
+            Merge Branch?
+          </Dialog.Title>
+          <Dialog.Description className="text-md italic mb-2">
+            This will merge the current branch into your branch.
+          </Dialog.Description>
+
+          <p className="text-lg mb-2">
+            Are you sure you want to merge the current branch into your branch?
+            This action cannot be undone.
+          </p>
+
+          <div className="flex items-center justify-around">
+            <DialogButton
+              text="Cancel"
+              variant="cancel"
               onClick={() => setDialogOpen(false)}
-              color="primary"
-              autoFocus
-            >
-              Merge
-            </Button>
-          </DialogActions>
-        </form>
+            />
+            <DialogButton
+              text="Merge"
+              variant="ok"
+              onClick={async () => {
+                setDialogOpen(false);
+                await handleMerge();
+              }}
+            />
+          </div>
+        </div>
       </Dialog>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={success ? "success" : "error"}
-        >
-          {success ? "Merged branch!" : "Failed to merge graph!"}
-        </Alert>
-      </Snackbar>
-    </>
+    </div>
   );
 };

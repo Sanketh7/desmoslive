@@ -1,23 +1,16 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  Snackbar,
-} from "@material-ui/core";
-import { SaveTwoTone } from "@material-ui/icons";
-import { Alert } from "@material-ui/lab";
 import { useState } from "react";
 import { mutate } from "swr";
 import { updateBranchExpressionsRequest } from "../../../api/requests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setExpressionsChanges } from "../../../redux/slices/expressionsSlice";
+import IconButton from "../../common/IconButton";
+import { Dialog } from "@headlessui/react";
+import DialogButton from "../../common/DialogButton";
+import { FaSave } from "react-icons/fa";
 
 export const SaveButton: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  // TODO: snackbar
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -31,10 +24,7 @@ export const SaveButton: React.FC = () => {
 
   const dispatch = useAppDispatch();
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    event.preventDefault();
+  const handleSave = async () => {
     try {
       if (!authToken) throw new Error("No authentication.");
       if (!activeGraph.id) throw new Error("No active graph.");
@@ -58,54 +48,51 @@ export const SaveButton: React.FC = () => {
   };
 
   return (
-    <>
+    <div>
       <IconButton
         disabled={changes.length === 0 || !activeBranch.isOwner}
         onClick={() => setDialogOpen(true)}
       >
-        <SaveTwoTone />
+        <FaSave />
       </IconButton>
+
       <Dialog
+        as="div"
+        className="fixed inset-0 text-center flex bg-black bg-opacity-50"
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Save Changes?</DialogTitle>
-        <form onSubmit={handleSubmit}>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Saving changes will permanently alter your graph. Collaborators
-              will be able to see these changes.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDialogOpen(false)} color="primary">
-              Cancel
-            </Button>
-            <Button
-              type="submit"
+        <Dialog.Overlay />
+        <div className="bg-white w-1/3 m-auto border border-green-700 rounded-xl p-4">
+          <Dialog.Title className="text-2xl font-bold">
+            Save Graph?
+          </Dialog.Title>
+          <Dialog.Description className="text-md italic mb-2">
+            This will save changes made to your branch.
+          </Dialog.Description>
+
+          <p className="text-lg mb-2">
+            Are you sure you want to save these changes? This action cannot be
+            undone.
+          </p>
+
+          <div className="flex items-center justify-around">
+            <DialogButton
+              text="Cancel"
+              variant="cancel"
               onClick={() => setDialogOpen(false)}
-              color="primary"
-              autoFocus
-            >
-              Save
-            </Button>
-          </DialogActions>
-        </form>
+            />
+            <DialogButton
+              text="Save"
+              variant="ok"
+              onClick={async () => {
+                setDialogOpen(false);
+                await handleSave();
+              }}
+            />
+          </div>
+        </div>
       </Dialog>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={success ? "success" : "error"}
-        >
-          {success ? "Saved graph!" : "Failed to save graph!"}
-        </Alert>
-      </Snackbar>
-    </>
+    </div>
   );
 };

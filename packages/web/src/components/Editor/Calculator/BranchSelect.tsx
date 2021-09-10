@@ -1,9 +1,9 @@
-import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import { Listbox } from "@headlessui/react";
 import { useBranchesDataSWR, useMyBranchIDSWR } from "../../../api/swrRequests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setActiveBranch } from "../../../redux/slices/activeBranchSlice";
 import { MergeButton } from "./MergeButton";
+import { HiSelector } from "react-icons/hi";
 
 export const BranchSelect: React.FC = () => {
   // TODO: merge branches
@@ -25,9 +25,49 @@ export const BranchSelect: React.FC = () => {
       dispatch(setActiveBranch({ id: myBranchID, isOwner: true }));
   }, [activeGraph.id]);
   */
-
   return (
-    <div>
+    <div className="flex items-center gap-x-4">
+      <div className="flex-grow">
+        <Listbox
+          value={activeBranch.id}
+          onChange={(value) =>
+            dispatch(
+              setActiveBranch({
+                id: value as string,
+                isOwner: Boolean(myBranchID && value === myBranchID),
+              })
+            )
+          }
+        >
+          <div className="relative">
+            <Listbox.Button className="py-2 px-4 text-md border-2 border-green-700 rounded-md w-full text-left">
+              {activeBranch.id}
+              <HiSelector className="text-lg inline float-right" />
+            </Listbox.Button>
+            <Listbox.Options className="absolute mt-1 border-2 border-green-700 rounded-md z-50 bg-white w-full">
+              {branches?.map((branch) => (
+                <Listbox.Option
+                  className="py-2 px-4 text-md rounded-md select-none hover:bg-green-200"
+                  key={branch.id}
+                  value={branch.id}
+                >
+                  {branch.owner.email}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </div>
+        </Listbox>
+      </div>
+
+      <div>
+        <MergeButton />
+      </div>
+    </div>
+  );
+};
+
+/*
+<div>
       <div style={{ display: "flex" }}>
         <FormControl variant="outlined" style={{ flex: "auto" }}>
           <InputLabel id="select-labe">Branch</InputLabel>
@@ -64,5 +104,4 @@ export const BranchSelect: React.FC = () => {
         <Alert severity="warning">You need to select a branch!</Alert>
       )}
     </div>
-  );
-};
+*/
