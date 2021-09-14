@@ -1,5 +1,7 @@
 import useSWR from "swr";
 import axios from "axios";
+import GraphData from "@desmoslive/api/src/interfaces/GraphData";
+import BranchData from "../../../api/src/interfaces/BranchData";
 
 const fetcher = (url: string, authToken: string) =>
   axios
@@ -10,12 +12,10 @@ const fetcher = (url: string, authToken: string) =>
     })
     .then((res) => res.data);
 
-type GraphData = { id: string; name: string }[];
-
 export const useMyGraphsSWR = (
   authToken: string | null
 ): {
-  myGraphs: GraphData | undefined;
+  myGraphs: GraphData[] | undefined;
   isLoading: boolean;
   isError: boolean;
   mutate: (
@@ -28,7 +28,8 @@ export const useMyGraphsSWR = (
     (url: string) => fetcher(url, authToken as string)
   );
   return {
-    myGraphs: data && data.myGraphs ? (data.myGraphs as GraphData) : undefined,
+    myGraphs:
+      data && data.myGraphs ? (data.myGraphs as GraphData[]) : undefined,
     isLoading: !error && data,
     isError: error,
     mutate: mutate,
@@ -38,7 +39,7 @@ export const useMyGraphsSWR = (
 export const useSharedGraphsSWR = (
   authToken: string | null
 ): {
-  sharedGraphs: GraphData | undefined;
+  sharedGraphs: GraphData[] | undefined;
   isLoading: boolean;
   isError: boolean;
   mutate: (
@@ -52,7 +53,9 @@ export const useSharedGraphsSWR = (
   );
   return {
     sharedGraphs:
-      data && data.sharedGraphs ? (data.sharedGraphs as GraphData) : undefined,
+      data && data.sharedGraphs
+        ? (data.sharedGraphs as GraphData[])
+        : undefined,
     isLoading: !error && data,
     isError: error,
     mutate: mutate,
@@ -84,30 +87,11 @@ export const useBranchExpressionsSWR = (
   };
 };
 
-export const useMyBranchIDSWR = (
-  authToken: string | null,
-  graphID: string | null
-): {
-  id: string | undefined;
-  isLoading: boolean;
-  isError: boolean;
-} => {
-  const { data, error } = useSWR(
-    authToken && graphID ? `/api/graph/${graphID}/branch/me/id` : null,
-    (url: string) => fetcher(url, authToken as string)
-  );
-  return {
-    id: data && data.id ? (data.id as string) : undefined,
-    isLoading: !error && data,
-    isError: error,
-  };
-};
-
 export const useBranchesDataSWR = (
   authToken: string | null,
   graphID: string | null
 ): {
-  branches: [{ id: string; owner: { email: string } }] | undefined;
+  branches: BranchData[] | undefined;
   isLoading: boolean;
   isError: boolean;
 } => {

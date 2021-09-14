@@ -1,7 +1,6 @@
 import express from "express";
 import {
   createBranch,
-  getBranchExpressions,
   getUsersBranchID,
 } from "../controllers/branch.controller";
 import {
@@ -14,6 +13,7 @@ import {
   validateOwner,
 } from "../controllers/graph.controller";
 import { getUserByEmail } from "../controllers/user.controller";
+import BranchData from "../interfaces/BranchData";
 import { googleAuth } from "../tokenAuth";
 import { handleHTTPError, HTTPError, isStringArray } from "./util";
 
@@ -84,7 +84,7 @@ router.get("/:graphID/branches", googleAuth, async (req, res) => {
     const branches = await getBranches(graphID);
     if (!branches) throw new HTTPError(404);
 
-    const branchData = branches.map(branch => ({ id: branch.id, owner: { email: branch.owner.email } }));
+    const branchData: BranchData[] = branches.map(branch => ({ id: branch.id, owner: { email: branch.owner.email } }));
     res.status(200).json({ branches: branchData }).end();
   } catch (err) {
     handleHTTPError(err, res);

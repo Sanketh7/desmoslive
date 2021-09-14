@@ -2,20 +2,20 @@ import IconButton from "../../common/IconButton";
 import { Dialog } from "@headlessui/react";
 import { TiFlowMerge } from "react-icons/ti";
 import { useState } from "react";
-import { getMergeBranchRequest } from "../../../api/requests";
-import { useMyBranchIDSWR } from "../../../api/swrRequests";
+import {
+  getMyBranchIDRequest,
+  mergeBranchRequest,
+} from "../../../api/requests";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setActiveBranch } from "../../../redux/slices/activeBranchSlice";
 import DialogButton from "../../common/DialogButton";
 
 export const MergeButton: React.FC = () => {
-  const authToken = useAppSelector((state) => state.auth.token);
+  const auth = useAppSelector((state) => state.auth);
   const activeBranch = useAppSelector((state) => state.activeBranch);
   const activeGraph = useAppSelector((state) => state.activeGraph);
 
   const dispatch = useAppDispatch();
-
-  const { id: myBranchID } = useMyBranchIDSWR(authToken, activeGraph.id);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   // TODO: implement snackbar
@@ -24,19 +24,28 @@ export const MergeButton: React.FC = () => {
 
   const handleMerge = async () => {
     try {
-      if (!authToken) throw new Error("Needs authentication");
-      if (!activeBranch.id) throw new Error("No branch selected.");
-      if (!myBranchID) throw new Error("No branch to merge into.");
-      const res = await getMergeBranchRequest(
-        authToken,
+      if (!auth.token || !auth.email) throw new Error("Needs authentication");
+      if (!activeBranch?.id) throw new Error("No branch selected.");
+      if (!activeGraph.id) throw new Error("No graph selected.");
+      const myBranchID = await getMyBranchIDRequest(auth.token, activeGraph.id);
+      if (myBranchID.status !== 200)
+        throw new Error("No branch to merge into.");
+      const res = await mergeBranchRequest(
+        auth.token,
         activeBranch.id,
-        myBranchID
+        myBranchID.data.id
       );
 
       setSuccess(res.status === 200);
       setSnackbarOpen(true);
 
-      dispatch(setActiveBranch({ id: myBranchID, isOwner: true }));
+      // reset view to my branch
+      dispatch(
+        setActiveBranch({
+          id: myBranchID.data.id,
+          owner: { email: auth.email },
+        })
+      );
     } catch (err) {
       console.log(err);
       setSuccess(false);
@@ -47,7 +56,9 @@ export const MergeButton: React.FC = () => {
   return (
     <div>
       <IconButton
-        disabled={activeBranch.isOwner}
+        disabled={
+          !activeBranch.owner.email || activeBranch.owner.email === auth.email
+        }
         onClick={() => setDialogOpen(true)}
       >
         <TiFlowMerge className="text-xl" />

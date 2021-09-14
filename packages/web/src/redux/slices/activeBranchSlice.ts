@@ -1,25 +1,26 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import BranchData from "@desmoslive/api/src/interfaces/BranchData";
 export interface ActiveBranchState {
   id: string | null;
-  isOwner: boolean;
+  owner: {
+    email: string | null;
+  };
 }
 
 const initialState: ActiveBranchState = {
   id: null,
-  isOwner: false,
+  owner: {
+    email: null,
+  },
 };
 
 export const activeBranchSlice = createSlice({
   name: "activeBranch",
   initialState,
   reducers: {
-    setActiveBranch: (
-      state,
-      action: PayloadAction<{ id: string; isOwner: boolean }>
-    ) => {
+    setActiveBranch: (state, action: PayloadAction<BranchData>) => {
       state.id = action.payload.id;
-      state.isOwner = action.payload.isOwner;
+      state.owner.email = action.payload.owner.email;
     },
   },
 });

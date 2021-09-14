@@ -18,7 +18,7 @@ export const SaveButton: React.FC = () => {
   const currentExpressions = useAppSelector(
     (state) => state.expressions.current
   );
-  const authToken = useAppSelector((state) => state.auth.token);
+  const auth = useAppSelector((state) => state.auth);
   const activeGraph = useAppSelector((state) => state.activeGraph);
   const activeBranch = useAppSelector((state) => state.activeBranch);
 
@@ -26,17 +26,17 @@ export const SaveButton: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      if (!authToken) throw new Error("No authentication.");
+      if (!auth.token) throw new Error("No authentication.");
       if (!activeGraph.id) throw new Error("No active graph.");
       const res = await updateBranchExpressionsRequest(
-        authToken as string,
-        activeBranch.id as string,
+        auth.token as string,
+        activeBranch?.id as string,
         currentExpressions.map((expr) => expr.latex)
       );
       // clear changes
       dispatch(setExpressionsChanges([]));
       // force swr to update
-      mutate(`/api/branch/${activeBranch.id}/expressions`);
+      mutate(`/api/branch/${activeBranch?.id}/expressions`);
 
       setSuccess(res.status === 200);
       setSnackbarOpen(true);
@@ -50,7 +50,11 @@ export const SaveButton: React.FC = () => {
   return (
     <div>
       <IconButton
-        disabled={changes.length === 0 || !activeBranch.isOwner}
+        disabled={
+          changes.length === 0 ||
+          !activeBranch.owner.email ||
+          activeBranch.owner.email !== auth.email
+        }
         onClick={() => setDialogOpen(true)}
       >
         <FaSave />

@@ -66,7 +66,16 @@ export const renameGraphRequest = async (
   );
 };
 
-export const getMergeBranchRequest = async (
+export const getMyBranchIDRequest = async (
+  authToken: string,
+  graphID: string
+): Promise<AxiosResponse<{ id: string }>> => {
+  return await axios.get(`/api/graph/${graphID}/branch/me/id`, {
+    headers: { Authorization: authToken },
+  });
+};
+
+export const mergeBranchRequest = async (
   authToken: string,
   srcBranchID: string,
   targetBranchID: string

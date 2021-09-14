@@ -1,4 +1,5 @@
 import { getConnection, getRepository } from "typeorm";
+import GraphData from "../interfaces/GraphData";
 import { User } from "../models/user.model";
 
 /**
@@ -69,7 +70,7 @@ export const getSharedGraphsIDs = async (email: string): Promise<string[]> => {
     : [];
 };*/
 
-export const getSharedGraphsData = async (email: string): Promise<{ id: string, name: string }[]> => {
+export const getSharedGraphsData = async (email: string): Promise<GraphData[]> => {
   // load user with relation
   const user = await getRepository(User).findOne(email, { relations: ["sharedGraphs"] });
   return user && user.sharedGraphs ? user.sharedGraphs.map(graph => { return { id: graph.id, name: graph.name } }) : [];
