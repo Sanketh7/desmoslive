@@ -33,9 +33,11 @@ const Login: React.FC = () => {
     }
   };
   return (
-    <div className="h-screen bg-gradient-to-br from-green-600 to-blue-400 flex justify-center items-center">
-      <div className="bg-gray-300 bg-opacity-50 w-1/2 h-1/2 flex flex-col justify-between items-center p-12 rounded-xl">
-        <div className="text-5xl font-sans font-bold">Sign In</div>
+    <div className="h-screen bg-gradient-to-br from-green-400 to-blue-400 flex justify-center items-center">
+      <div className="bg-gray-300 bg-opacity-50 w-1/4 h-auto flex flex-col justify-between items-center p-6 gap-y-4 rounded-xl">
+        <div className="text-4xl font-sans font-bold text-green-800">
+          Sign In
+        </div>
         <GoogleLogin
           clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}
           buttonText="Log in with Google"
