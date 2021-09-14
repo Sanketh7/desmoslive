@@ -59,7 +59,7 @@ const CreateButton = (): JSX.Element => {
               onClick={() => setDialogOpen(false)}
             />
             <DialogButton
-              text="Rename"
+              text="Create"
               variant="ok"
               disabled={!nameEntry}
               onClick={async () => {
