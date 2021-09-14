@@ -27,7 +27,7 @@ const FileTree = (): JSX.Element => {
 
   return (
     <div className="w-full h-full p-4">
-      <div className="flex items-center justify-around">
+      <div className="flex items-center justify-around mb-4">
         <div className="text-2xl font-bold">Graphs</div>
         <div className="text-xl">
           <CreateButton />

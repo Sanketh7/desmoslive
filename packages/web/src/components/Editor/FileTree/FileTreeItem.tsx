@@ -11,8 +11,8 @@ interface Props {
 const FileTreeItem = ({ graphName, graphID, isOwner }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   return (
-    <div
-      className="flex items-center ml-8 gap-x-4 hover:text-green-700 hover:bg-green-100 rounded-lg p-1 pl-4 hover:shadow"
+    <button
+      className="w-full flex items-center gap-x-4 hover:text-green-700 hover:bg-green-100 rounded-lg p-1 pl-4 hover:shadow"
       onClick={() => {
         dispatch(
           setActiveGraph({ name: graphName, id: graphID, isOwner: isOwner })
@@ -21,7 +21,7 @@ const FileTreeItem = ({ graphName, graphID, isOwner }: Props): JSX.Element => {
     >
       <FaFile />
       <div className="text-lg">{graphName}</div>
-    </div>
+    </button>
   );
 };
 

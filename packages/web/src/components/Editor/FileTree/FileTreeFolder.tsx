@@ -18,7 +18,7 @@ const FileTreeFolder: React.FC<Props> = ({ folderName, children }: Props) => {
         {open ? <FaChevronCircleDown /> : <FaChevronCircleRight />}
         <div className="text-lg">{folderName}</div>
       </button>
-      {open && children}
+      <div className="pl-8">{open && children}</div>
     </div>
   );
 };
