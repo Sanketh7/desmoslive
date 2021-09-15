@@ -7,6 +7,7 @@ COPY ./package.json .
 COPY ./yarn.lock .
 
 COPY ./packages/web ./packages/web
+COPY ./packages/api ./packages/api
 
 RUN yarn workspace @desmoslive/web install --production=true
 
