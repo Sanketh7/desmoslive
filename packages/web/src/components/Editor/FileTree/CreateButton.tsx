@@ -7,7 +7,11 @@ import { createGraphRequest } from "../../../api/requests";
 import { RootState } from "../../../redux/store";
 import DialogButton from "../../common/DialogButton";
 
-const CreateButton = (): JSX.Element => {
+interface Props {
+  mutateGraphData: () => Promise<void>;
+}
+
+const CreateButton = ({ mutateGraphData }: Props): JSX.Element => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [nameEntry, setNameEntry] = useState("");
   const authToken = useSelector((state: RootState) => state.auth.token);
@@ -18,7 +22,7 @@ const CreateButton = (): JSX.Element => {
       if (!authToken) throw new Error("Not authenticated.");
       const res = await createGraphRequest(authToken, nameEntry);
       // refresh graph data to immediately show new graph
-      // await mutateGraphData();
+      await mutateGraphData();
     } catch (err) {
       console.log(err);
     }
