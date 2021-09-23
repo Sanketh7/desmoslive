@@ -67,6 +67,7 @@ router.get("/:graphID/branch/me/id", googleAuth, async (req, res) => {
     res.status(200).json({ id: id }).end();
   } catch (err) {
     handleHTTPError(err, res);
+    console.log(err.stack);
   }
 })
 
